@@ -1,0 +1,137 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android' // Enables android kotlin support
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt' // Enables anotation processor support
+
+kapt {
+    generateStubs = true
+}
+
+android {
+    compileSdkVersion build_versions.target_sdk
+    buildToolsVersion build_versions.build_tools
+
+    defaultConfig {
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/kotlin', 'src/main/java']
+            assets.srcDirs = ['src/main/assets']
+            /*res.srcDirs =
+                    [
+                        'src/main/res/layouts/items',
+                        'src/main/res/layouts/views',
+                        'src/main/res'
+                    ]*/
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    androidExtensions {
+        experimental = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'LICENSE.txt'
+        exclude 'LICENSE'
+    }
+
+    signingConfigs {
+        debug {
+            keyAlias signing_configs.debug_alias
+            keyPassword signing_configs.debug_password
+            storePassword signing_configs.debug_password
+            storeFile file(signing_configs.debug_file)
+        }
+        release {
+            keyAlias signing_configs.live_alias
+            keyPassword signing_configs.live_password
+            storePassword signing_configs.live_password
+            storeFile file(signing_configs.live_file)
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguard_list.each { pro_guard ->
+                proguardFile pro_guard
+            }
+            signingConfig signingConfigs.release
+        }
+
+        debug {
+            minifyEnabled false
+            proguard_list.each { pro_guard ->
+                proguardFile pro_guard
+            }
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Support libraries
+    implementation deps.support.design
+    implementation deps.support.v4
+    implementation deps.support.card_view
+
+    // Kotlin
+    implementation deps.kotlin.stdlib
+
+    // Data Binding
+    kapt deps.binding_compiler
+
+    // Architecture components
+    implementation deps.lifecycle.runtime
+    implementation deps.lifecycle.extensions
+    kapt deps.lifecycle.compiler
+
+    //Location
+    implementation deps.googleGms.location
+
+    // RxJava
+    implementation deps.rx.java2
+    implementation(deps.rx.android) {
+        exclude group: 'io.reactivex', module: 'rxjava2'
+    }
+}
+
+ext {
+    PUBLISH_GROUP_ID = 'com.kevadiyakrunalk'
+    PUBLISH_ARTIFACT_ID = 'kotlinextensions'
+    PUBLISH_VERSION = '1.0.0'
+}
+
+apply from: '../gradle/android-release-aar.gradle'
