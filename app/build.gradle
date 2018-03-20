@@ -12,9 +12,10 @@ android {
     buildToolsVersion build_versions.build_tools
 
     defaultConfig {
-        applicationId "com.kotlinextension"
+        applicationId readApplicationId()
         minSdkVersion build_versions.min_sdk
         targetSdkVersion build_versions.target_sdk
+        manifestPlaceholders = [crashlyticsKey: readCrashlyticsKey()]
     }
 
     sourceSets {
@@ -65,16 +66,16 @@ android {
 
     signingConfigs {
         debug {
-            keyAlias signing_configs.debug_alias
-            keyPassword signing_configs.debug_password
-            storePassword signing_configs.debug_password
-            storeFile file(signing_configs.debug_file)
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storePassword 'android'
+            storeFile file("$project.rootDir/settings/keystore/debug.keystore")
         }
         release {
-            keyAlias signing_configs.live_alias
-            keyPassword signing_configs.live_password
-            storePassword signing_configs.live_password
-            storeFile file(signing_configs.live_file)
+            keyAlias 'androidreleasekey'
+            keyPassword 'password'
+            storePassword 'password'
+            storeFile file("$project.rootDir/settings/keystore/release.jks")
         }
     }
 
@@ -82,7 +83,7 @@ android {
     productFlavors {
         production {
             dimension "mode"
-            applicationId "com.kotlinextension"
+            applicationId readApplicationId()
             versionCode readVersionCode("production")
             versionName readVersionName("production")
 
@@ -90,7 +91,7 @@ android {
         }
         qa {
             dimension "mode"
-            applicationId "com.kotlinextension"
+            applicationId readApplicationId()
             versionCode readVersionCode("qa")
             versionName readVersionName("qa")
 
@@ -98,7 +99,7 @@ android {
         }
         development {
             dimension "mode"
-            applicationId "com.kotlinextension"
+            applicationId readApplicationId()
             versionCode readVersionCode("development")
             versionName readVersionName("development")
 
@@ -126,6 +127,7 @@ android {
         }
     }
 
+
     android.applicationVariants.all { variant ->
         variant.outputs.all { output ->
             def outputFile = output.outputFile
@@ -139,14 +141,10 @@ android {
 
                 if (outputFile.name.endsWith('-release.apk')) {
                     def fileName
-                    if (variant.productFlavors[0].name == "production") {
+                    if (variant.productFlavors[0].name == "production")
                         fileName = outputFile.name.replace("app-production-release", "${appName}_prod_${readVersionNameForApk("production")}")
-                    } else if (variant.productFlavors[0].name == "development") {
-                        fileName = outputFile.name.replace("app-development-release", "${appName}_dev_${readVersionNameForApk("development")}")
-                    } else if (variant.productFlavors[0].name == "qa") {
-                        fileName = outputFile.name.replace("app-qa-release", "${appName}_qa_${readVersionNameForApk("qa")}")
-                    }
-                    outputFileName = fileName
+                    if(fileName != null)
+                        outputFileName = fileName
 
                     def destination = "${project.rootDir}/settings/apk/${variant.productFlavors[0].name}"
                     def taskSuffix = variant.name.capitalize()
@@ -156,6 +154,31 @@ android {
                         into(destination)
                     }
                     tasks[assembleTaskName].finalizedBy = [copyAPKTask]
+                    if (variant.productFlavors[0].name == "production")
+                        outputFile.name.replace("${appName}_prod_${readVersionNameForApk("production")}", "app-production-release")
+                } else if (outputFile.name.endsWith('-debug.apk')) {
+                    def fileName1
+                    if (variant.productFlavors[0].name == "development") {
+                        fileName1 = outputFile.name.replace("app-development-debug", "${appName}_dev_${readVersionNameForApk("development")}")
+                    } else if (variant.productFlavors[0].name == "qa") {
+                        fileName1 = outputFile.name.replace("app-qa-debug", "${appName}_qa_${readVersionNameForApk("qa")}")
+                    }
+                    if(fileName1 != null)
+                        outputFileName = fileName1
+
+                    def destination = "${project.rootDir}/settings/apk/${variant.productFlavors[0].name}"
+                    def taskSuffix = variant.name.capitalize()
+                    def assembleTaskName = "assemble${taskSuffix}"
+                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type: Copy) {
+                        from("${project.buildDir}/outputs/apk/${variant.productFlavors[0].name}/debug/${outputFileName}")
+                        into(destination)
+                    }
+                    tasks[assembleTaskName].finalizedBy = [copyAPKTask]
+                    if (variant.productFlavors[0].name == "development") {
+                        outputFile.name.replace("${appName}_dev_${readVersionNameForApk("development")}", "app-development-debug")
+                    } else if (variant.productFlavors[0].name == "qa") {
+                        outputFile.name.replace("${appName}_qa_${readVersionNameForApk("qa")}", "app-qa-debug")
+                    }
                 }
             }
         }
@@ -184,12 +207,12 @@ dependencies {
 
 def readVersionNameForApk(def buildType = "buildVariant") {
     def version = readVersionFile(buildType)
-    return "V${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_BUILD']})_${new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("UTC"))}"
+    return "V${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})_${new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("UTC"))}"
 }
 
 def readVersionName(def buildType = "buildVariant") {
     def version = readVersionFile(buildType)
-    return "${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_BUILD']})"
+    return "${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})"
 }
 
 def readVersionCode(def buildType = "buildVariant") {
@@ -198,33 +221,12 @@ def readVersionCode(def buildType = "buildVariant") {
     return build
 }
 
-project.afterEvaluate {
-    task performVersionCodeAndVersionNumberIncrement {
-        description 'Task for incrementing versionCode & versionNumber According to Build Variant and version type'
-        doLast {
-            println "-----------------------------------------------------------------------------"
-            println "              Executing VersionCode & versionName method                    "
-            println "-----------------------------------------------------------------------------"
-            println "Incrementing " + versionType + " version for " + buildVariantType + " release"
-            incrementVersionCode(buildVariantType)
-            def latestVersionName = incrementVersionName(buildVariantType, versionType)
-            println "-----------------------------------------------------------------------------"
-            println "              Writing Latest Version name to Jenkins file"
-            println "-----------------------------------------------------------------------------"
-            writeToJenkinFile(latestVersionName)
-            println "-----------------------------------------------------------------------------"
-            println "              Compiling Build according to " + buildVariantType
-            println "-----------------------------------------------------------------------------"
-        }
-    }
+def readCrashlyticsKey() {
+    def version = readVersionFile("project")
+    return "${version['CRASHLYTICS_KEY']}"
+}
 
-    task revertVersionCodeForVariant {
-        description 'Task for incrementing versionCode & versionNumber According to Build Variant and version type'
-        doLast {
-            println "-----------------------------------------------------------------------------"
-            println "              Reverting Version Code For " + buildVariantType
-            println "-----------------------------------------------------------------------------"
-            revertVersionCodeAndName(buildVariantType)
-        }
-    }
+def readApplicationId() {
+    def version = readVersionFile("project")
+    return "${version['APPLICATION_ID']}"
 }

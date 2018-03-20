@@ -1,9 +1,9 @@
 buildscript {
-    apply from: './settings/versions.gradle'
+    apply from: './settings/dependencies.gradle'
     addRepos(repositories)
 
     dependencies {
-        classpath deps.android_gradle_plugin
+        classpath deps.other.plugin
         classpath deps.kotlin.plugin
     }
     repositories {

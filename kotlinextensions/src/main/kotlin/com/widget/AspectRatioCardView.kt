@@ -5,7 +5,6 @@ import android.support.v7.widget.CardView
 import android.util.AttributeSet
 import com.extensions.R
 
-
 class AspectRatioCardView : CardView {
     private var widthRatio: Int = 0
     private var heightRatio: Int = 0
