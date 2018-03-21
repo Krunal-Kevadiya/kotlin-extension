@@ -47,12 +47,12 @@ platform :android do
               build_type: "Debug"
             )
 
-            #crashlytics(
-            #    emails: TESTER_EMAIL,
-            #    api_token: FABRIC_API_TOKEN,
-            #    build_secret: FABRIC_BUILD_SECRET,
-            #    notifications: true
-            #)
+            crashlytics(
+                emails: TESTER_EMAIL,
+                api_token: FABRIC_API_TOKEN,
+                build_secret: FABRIC_BUILD_SECRET,
+                notifications: true
+            )
             #apk_path: "app/build/outputs/apk/development/release/app-development-release.apk",
         end
     #----------------------------------------------------------------------------------------------------------------------------------
@@ -78,12 +78,12 @@ platform :android do
               build_type: "Debug"
             )
 
-            #crashlytics(
-            #    emails: TESTER_EMAIL,
-            #    api_token: FABRIC_API_TOKEN,
-            #    build_secret: FABRIC_BUILD_SECRET,
-            #    notifications: true
-            #)
+            crashlytics(
+                emails: TESTER_EMAIL,
+                api_token: FABRIC_API_TOKEN,
+                build_secret: FABRIC_BUILD_SECRET,
+                notifications: true
+            )
             #apk_path: "app/build/outputs/apk/qa/release/app-qa-release.apk",
         end
     #----------------------------------------------------------------------------------------------------------------------------------
@@ -109,13 +109,13 @@ platform :android do
               build_type: "Release"
             )
 
-            #crashlytics(
-            #    emails: TESTER_EMAIL,
-            #    api_token: FABRIC_API_TOKEN,
-            #    build_secret: FABRIC_BUILD_SECRET,
-            #    notifications: true
-            #)
-            supply
+            crashlytics(
+                emails: TESTER_EMAIL,
+                api_token: FABRIC_API_TOKEN,
+                build_secret: FABRIC_BUILD_SECRET,
+                notifications: true
+            )
+            #supply
             #apk_path: "app/build/outputs/apk/production/release/app-production-release.apk",
         end
     #----------------------------------------------------------------------------------------------------------------------------------

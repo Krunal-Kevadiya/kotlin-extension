@@ -23,12 +23,6 @@ android {
             manifest.srcFile 'src/main/AndroidManifest.xml'
             java.srcDirs = ['src/main/kotlin', 'src/main/java']
             assets.srcDirs = ['src/main/assets']
-            /*res.srcDirs =
-                    [
-                        'src/main/res/layouts/items',
-                        'src/main/res/layouts/views',
-                        'src/main/res'
-                    ]*/
         }
     }
 
@@ -65,47 +59,12 @@ android {
         exclude 'LICENSE'
     }
 
-    signingConfigs {
-        debug {
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storePassword 'android'
-            storeFile file("$project.rootDir/settings/keystore/debug.keystore")
-        }
-        release {
-            keyAlias 'androidreleasekey'
-            keyPassword 'password'
-            storePassword 'password'
-            storeFile file("$project.rootDir/settings/keystore/release.jks")
-        }
-    }
-
-    flavorDimensions "mode"
-    productFlavors {
-        production {
-            dimension "mode"
-            versionCode readVersionCode("production")
-            versionName readVersionName("production")
-        }
-        qa {
-            dimension "mode"
-            versionCode readVersionCode("qa")
-            versionName readVersionName("qa")
-        }
-        development {
-            dimension "mode"
-            versionCode readVersionCode("development")
-            versionName readVersionName("development")
-        }
-    }
-
     buildTypes {
         release {
             minifyEnabled false
             proguard_list.each { pro_guard ->
                 proguardFile pro_guard
             }
-            signingConfig signingConfigs.release
         }
 
         debug {
@@ -113,7 +72,6 @@ android {
             proguard_list.each { pro_guard ->
                 proguardFile pro_guard
             }
-            signingConfig signingConfigs.debug
         }
     }
 }
@@ -145,32 +103,6 @@ dependencies {
     implementation(deps.javaxAndRx.android) {
         exclude group: 'io.reactivex', module: 'rxjava2'
     }
-}
-
-def readVersionNameForApk(def buildType = "buildVariant") {
-    def version = readVersionFile(buildType)
-    return "V${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})_${new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("UTC"))}"
-}
-
-def readVersionName(def buildType = "buildVariant") {
-    def version = readVersionFile(buildType)
-    return "${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})"
-}
-
-def readVersionCode(def buildType = "buildVariant") {
-    def version = readVersionFile(buildType)
-    def build = version['VERSION_CODE'] as int
-    return build
-}
-
-def readCrashlyticsKey() {
-    def version = readVersionFile("project")
-    return "${version['CRASHLYTICS_KEY']}"
-}
-
-def readApplicationId() {
-    def version = readVersionFile("project")
-    return "${version['APPLICATION_ID']}"
 }
 
 ext {

@@ -25,18 +25,28 @@ dependencies {
   detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0.RC6-4'
 }
 
+def isJava = plugins.hasPlugin('java')
 def qualityConfigDir = "$project.rootDir/settings/codequality"
 def reportsDir = "$project.rootDir/settings/reports"
 
 check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'ktlint', 'ktlintFormat', 'detekt'
+if (!isJava) {
+  check.dependsOn 'lint'
+}
 
 //Check Style
 task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code style checks') {
   configFile file("$qualityConfigDir/checkstyle/checkstyle-config.xml")
+  configProperties.checkstyleSuppressionFilterPath file("$qualityConfigDir/checkstyle/suppressions.xml")
   source 'src'
   include '**/*.java'
   exclude '**/model/**'
   exclude '**/AppLogger.java'
+  exclude '**/gen/**'
+  exclude '**/test/**'
+  exclude '**/androidTest/**'
+  exclude '**/R.java'
+  exclude '**/BuildConfig.java'
   reports {
     xml.enabled = true
     html.enabled = true
@@ -50,14 +60,18 @@ task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code
 //Find Bugs
 task findbugs(type: FindBugs,
   group: 'Verification',
-  description: 'Inspect java bytecode for bugs',
-  dependsOn: ['compileDebugSources', 'compileReleaseSources']) {
+  description: 'Inspect java bytecode for bugs'/*,
+  dependsOn: ['compileDebugSources', 'compileReleaseSources']*/) {
 
   ignoreFailures = false
   effort = "max"
   reportLevel = "high"
   excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
-  classes = files("$project.rootDir/app/build/intermediates/classes")
+  if (isJava) {
+    classes = files("$project.rootDir/app/build/classes")
+  } else {
+    classes = files("$project.rootDir/app/build/intermediates/classes")
+  }
 
   source 'src'
   include '**/*.java'
@@ -81,7 +95,7 @@ task pmd(type: Pmd, group: 'Verification', description: 'Inspect sourcecode for 
 
   source 'src'
   include '**/*.java'
-  exclude '**/gen/**'
+  exclude('**/gen/**', '**/debug/**')
   exclude '**/model/**'
 
   reports {
@@ -89,6 +103,29 @@ task pmd(type: Pmd, group: 'Verification', description: 'Inspect sourcecode for 
     html.enabled = true
     xml.setDestination(new File("$reportsDir/pmd/pmd.xml"))
     html.setDestination(new File("$reportsDir/pmd/pmd.html"))
+  }
+}
+
+if (!isJava) {
+  android {
+    lintOptions {
+      disable 'NewApi' // gradle build will compile code use `Objects.requireNonNull()` for lambda
+      abortOnError true
+      xmlReport true
+      xmlOutput project.file('build/reports/lint/lint-report.xml')
+      htmlReport true
+      htmlOutput project.file('build/reports/lint/lint-report.html')
+      lintConfig file("${project.rootDir}/AndroidCodeQualityConfig/quality/lint/lint.xml")
+    }
+
+    testOptions.unitTests.all {
+      testLogging {
+        events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+      }
+      jvmArgs '-noverify'
+    }
   }
 }
 
@@ -123,6 +160,6 @@ task detekt(type: JavaExec) {
   def outputName = "detekt"
   def baseline = "$project.projectDir/reports/baseline.xml"
 
-  def params = [ '-i', input, '-c', config, '-cr', configResource, '-f', filters, '-o', output, '-on', outputName, '-b', baseline]
+  def params = ['-i', input, '-c', config, '-cr', configResource, '-f', filters, '-o', output, '-on', outputName, '-b', baseline]
   args(params)
 }

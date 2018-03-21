@@ -149,7 +149,7 @@ platform :android do
                 build_secret: FABRIC_BUILD_SECRET,
                 notifications: true
             )
-            supply
+            #supply
             #apk_path: "app/build/outputs/apk/production/release/app-production-release.apk",
         end
     #----------------------------------------------------------------------------------------------------------------------------------
