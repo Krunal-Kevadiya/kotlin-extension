@@ -1,0 +1,128 @@
+/**
+ * Set up Checkstyle, Findbugs and PMD to perform extensive code analysis.
+ *
+ * Gradle tasks added:
+ * - checkstyle
+ * - findbugs
+ * - pmd
+ *
+ * The three tasks above are added as dependencies of the check task so running check will
+ * run all of them.
+ */
+
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+configurations {
+  ktlint
+  detekt
+}
+
+dependencies {
+  checkstyle 'com.puppycrawl.tools:checkstyle:6.5'
+  ktlint "com.github.shyiko:ktlint:0.20.0"
+  detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0.RC6-4'
+}
+
+def qualityConfigDir = "$project.rootDir/settings/codequality"
+def reportsDir = "$project.rootDir/settings/reports"
+
+check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'ktlint', 'ktlintFormat', 'detekt'
+
+//Check Style
+task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code style checks') {
+  configFile file("$qualityConfigDir/checkstyle/checkstyle-config.xml")
+  source 'src'
+  include '**/*.java'
+  exclude '**/model/**'
+  exclude '**/AppLogger.java'
+  reports {
+    xml.enabled = true
+    html.enabled = true
+    xml.setDestination(new File("$reportsDir/checkstyle/checkstyle.xml"))
+    html.setDestination(new File("$reportsDir/checkstyle/checkstyle.html"))
+  }
+
+  classpath = files()
+}
+
+//Find Bugs
+task findbugs(type: FindBugs,
+  group: 'Verification',
+  description: 'Inspect java bytecode for bugs',
+  dependsOn: ['compileDebugSources', 'compileReleaseSources']) {
+
+  ignoreFailures = false
+  effort = "max"
+  reportLevel = "high"
+  excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
+  classes = files("$project.rootDir/app/build/intermediates/classes")
+
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+
+  reports {
+    xml.enabled = true
+    html.enabled = false
+    xml.setDestination(new File("$reportsDir/findbugs/findbugs.xml"))
+    html.setDestination(new File("$reportsDir/findbugs/findbugs.html"))
+  }
+
+  classpath = files()
+}
+
+//PMD
+task pmd(type: Pmd, group: 'Verification', description: 'Inspect sourcecode for bugs') {
+  ruleSetFiles = files("$qualityConfigDir/pmd/pmd-ruleset.xml")
+  ignoreFailures = false
+  ruleSets = []
+
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+  exclude '**/model/**'
+
+  reports {
+    xml.enabled = true
+    html.enabled = true
+    xml.setDestination(new File("$reportsDir/pmd/pmd.xml"))
+    html.setDestination(new File("$reportsDir/pmd/pmd.html"))
+  }
+}
+
+//Kt Lint
+task ktlint(type: JavaExec, group: "verification") {
+  description = "Check Kotlin code style."
+  classpath = configurations.ktlint
+  main = "com.github.shyiko.ktlint.Main"
+  args "--reporter=plain?group_by_file", "--reporter=checkstyle,output=${reportsDir}/ktlint/ktlint.xml",
+    "--reporter=json,output=${reportsDir}/ktlint/ktlint.json",
+    "--reporter=plain,output=${reportsDir}/ktlint/ktlint.txt", "src/**/*.kt"
+}
+
+task ktlintFormat(type: JavaExec, group: "formatting") {
+  description = "Fix Kotlin code style deviations."
+  classpath = configurations.ktlint
+  main = "com.github.shyiko.ktlint.Main"
+  args "--reporter=plain?group_by_file", "--reporter=checkstyle,output=${reportsDir}/ktlint/ktlint.xml",
+    "--reporter=json,output=${reportsDir}/ktlint/ktlint.json",
+    "--reporter=plain,output=${reportsDir}/ktlint/ktlint.txt", "src/**/*.kt"
+}
+
+//detekt
+task detekt(type: JavaExec) {
+  main = "io.gitlab.arturbosch.detekt.cli.Main"
+  classpath = configurations.detekt
+  def input = "$projectDir"
+  def config = "$qualityConfigDir/detekt/detekt.yml"
+  def configResource = "/detekt.yml"
+  def filters = ".*test.*, .*/resources/.*"
+  def output = "$reportsDir/detekt"
+  def outputName = "detekt"
+  def baseline = "$project.projectDir/reports/baseline.xml"
+
+  def params = [ '-i', input, '-c', config, '-cr', configResource, '-f', filters, '-o', output, '-on', outputName, '-b', baseline]
+  args(params)
+}

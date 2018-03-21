@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android' // Enables android kotlin support
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt' // Enables anotation processor support
+apply from: '../settings/codequality/quality.gradle'
 
 kapt {
     generateStubs = true
