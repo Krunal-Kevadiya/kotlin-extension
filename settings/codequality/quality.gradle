@@ -37,7 +37,7 @@ if (!isJava) {
 //Check Style
 task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code style checks') {
   configFile file("$qualityConfigDir/checkstyle/checkstyle-config.xml")
-  configProperties.checkstyleSuppressionFilterPath file("$qualityConfigDir/checkstyle/suppressions.xml")
+  //configProperties.checkstyleSuppressionFilterPath file("$qualityConfigDir/checkstyle/suppressions.xml")
   source 'src'
   include '**/*.java'
   exclude '**/model/**'

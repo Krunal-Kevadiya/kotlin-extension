@@ -110,7 +110,7 @@
 
         <!-- Naming -->
         <module name="PackageName">
-            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$" />
+            <property name="format" value="^[a-z][a-z0-9]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$"/>
             <message key="name.invalidPattern"
                 value="Package name ''{0}'' must match pattern ''{1}''." />
         </module>
@@ -120,13 +120,20 @@
                 value="Method name ''{0}'' must match pattern ''{1}''." />
         </module>
         <module name="TypeName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF"/>
+            <property name="applyToPublic" value="true"/>
+            <property name="applyToProtected" value="true"/>
+            <property name="applyToPackage" value="true"/>
+            <property name="applyToPrivate" value="true"/>
             <message key="name.invalidPattern"
                 value="Type name ''{0}'' must match pattern ''{1}''." />
         </module>
         <module name="MemberName">
-            <property name="applyToPublic" value="false" />
-            <property name="applyToPackage" value="false" />
-            <property name="applyToProtected" value="false" />
+            <property name="applyToPublic" value="true"/>
+            <property name="applyToProtected" value="true"/>
+            <property name="applyToPackage" value="true"/>
+            <property name="applyToPrivate" value="true"/>
             <property name="format" value="^m[A-Z][a-z0-9][a-zA-Z0-9]*$" />
             <message key="name.invalidPattern"
                 value="Member name ''{0}'' must match pattern ''{1}''." />
@@ -238,19 +245,10 @@
             <property name="max" value="7"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
         </module>
-    </module>
-
-    <module name="TreeWalker">
 
         <!-- Checks that the outer type name and the file name match. !-->
         <!-- See http://checkstyle.sourceforge.net/config_misc.html#OuterTypeFilename !-->
         <module name="OuterTypeFilename"/>
-
-        <!-- Checks for class type parameter name naming conventions. !-->
-        <!-- See http://checkstyle.sourceforge.net/config_naming.html#ClassTypeParameterName !-->
-        <module name="ClassTypeParameterName">
-            <property name="format" value="^[A-Z]$"/>
-        </module>
 
         <!-- Checks for constant name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
@@ -269,47 +267,6 @@
             <property name="tokens" value="VARIABLE_DEF"/>
         </module>
 
-        <!-- Checks for local variable name naming conventions. !-->
-        <!-- See http://checkstyle.sf.net/config_naming.html !-->
-        <module name="LocalVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
-            <property name="tokens" value="VARIABLE_DEF"/>
-        </module>
-
-        <!-- Checks for member variable name naming conventions. !-->
-        <!-- See http://checkstyle.sf.net/config_naming.html !-->
-        <module name="MemberName">
-            <property name="format" value="^m[A-Z][a-zA-Z0-9]*$"/>
-            <property name="applyToPublic" value="true"/>
-            <property name="applyToProtected" value="true"/>
-            <property name="applyToPackage" value="true"/>
-            <property name="applyToPrivate" value="true"/>
-        </module>
-
-        <!-- Checks for method name naming conventions. !-->
-        <!-- See http://checkstyle.sf.net/config_naming.html !-->
-        <module name="MethodName">
-            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
-        </module>
-
-        <!-- Checks for method type parameter name naming conventions. !-->
-        <!-- See http://checkstyle.sourceforge.net/config_naming.html#MethodTypeParameterName !-->
-        <module name="MethodTypeParameterName">
-            <property name="format" value="^[A-Z]$"/>
-        </module>
-
-        <!-- Checks for package name naming conventions. !-->
-        <!-- See http://checkstyle.sf.net/config_naming.html !-->
-        <module name="PackageName">
-            <property name="format" value="^[a-z][a-z0-9]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$"/>
-        </module>
-
-        <!-- Checks for parameter name naming conventions. !-->
-        <!-- See http://checkstyle.sf.net/config_naming.html !-->
-        <module name="ParameterName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
-        </module>
-
         <!-- Checks for static variable name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="StaticVariableName">
@@ -320,30 +277,9 @@
             <property name="applyToPrivate" value="true"/>
         </module>
 
-        <!-- Checks for type name naming conventions. !-->
-        <!-- See http://checkstyle.sf.net/config_naming.html !-->
-        <module name="TypeName">
-            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
-            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF"/>
-            <property name="applyToPublic" value="true"/>
-            <property name="applyToProtected" value="true"/>
-            <property name="applyToPackage" value="true"/>
-            <property name="applyToPrivate" value="true"/>
-        </module>
-
-    </module>
-    <module name="TreeWalker">
-
-        <module name="FileContentsHolder"/>
-
         <!-- Ensure a class has a package declaration. !-->
         <!-- See http://checkstyle.sf.net/config_coding.html !-->
         <module name="PackageDeclaration"/>
-
-    </module>
-    <module name="TreeWalker">
-
-        <module name="FileContentsHolder"/>
 
         <!-- Checks visibility of class members. !-->
         <!-- See http://checkstyle.sf.net/config_design.html !-->
@@ -367,16 +303,6 @@
         <!-- Make sure that utility classes (classes that contain only static methods) do not have a public constructor. !-->
         <!-- See http://checkstyle.sf.net/config_design.html !-->
         <module name="HideUtilityClassConstructor"/>
-
-    </module>
-    <module name="TreeWalker">
-
-        <module name="FileContentsHolder"/>
-
-        <!-- Checks that the order of modifiers conforms to the suggestions in the Java Language specification, !-->
-        <!-- sections 8.1.1, 8.3.1 and 8.4.3. !-->
-        <!-- See http://checkstyle.sf.net/config_modifiers.html !-->
-        <module name="ModifierOrder"/>
 
         <!-- Checks that there are no redundant modifiers. !-->
         <!-- See http://checkstyle.sf.net/config_modifiers.html
@@ -463,6 +389,6 @@
         <!-- Checks for unused import statements. !-->
         <!-- See http://checkstyle.sf.net/config_import.html !-->
         <module name="UnusedImports"/>
-
     </module>
+
 </module>
