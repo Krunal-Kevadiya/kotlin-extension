@@ -16,7 +16,7 @@
     </module>
     <module name="SuppressionCommentFilter"/>
     <module name="SuppressionFilter">
-        <property name="file" value="${checkstyleSuppressionFilterPath}"/>
+        <property name="file" value="./settings/codequality/checkstyle/suppressions.xml"/>
     </module>
 
     <module name="TreeWalker">

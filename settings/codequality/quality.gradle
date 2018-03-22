@@ -21,7 +21,7 @@ configurations {
 }
 
 dependencies {
-  checkstyle 'com.puppycrawl.tools:checkstyle:6.5'
+  checkstyle 'com.puppycrawl.tools:checkstyle:6.19'
   ktlint "com.github.shyiko:ktlint:0.20.0"
   detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0.RC6-4'
 }
