@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">KotlinExtension</string>
+
+    <string name="title_activity_main">Repo list</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyAeSOCL5Yxl5QMqcQ6E88kGyjwJypkXgZ8</string>
+
+    <string name="btn_proceed">Proceed</string>
+    <string name="btn_setting">Setting</string>
+    <string name="permission_title_location">Allow location access</string>
+    <string name="permission_desc_rational_location">Without location permission we are unable to get location. Go ahead and grand permission.</string>
+    <string name="permission_desc_setting_location">Without location permission we are unable to get location. Go Setting and grand permission.</string>
+    <string name="permission_error_location">Without location permission we are unable to use this feature.</string>
+
+    <string name="disable_location">Location service is disable, please enable it.</string>
+    <string name="disable_network">Oh no.... we can\'t connect to the internet. Check your connection.</string>
 </resources>

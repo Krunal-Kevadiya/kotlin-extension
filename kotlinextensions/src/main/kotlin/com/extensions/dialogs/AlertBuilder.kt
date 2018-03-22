@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.view.KeyEvent
-import android.view.View
 import kotlin.DeprecationLevel.ERROR
 
 @SuppressLint("SupportAnnotationUsage")
@@ -67,3 +66,6 @@ inline fun AlertBuilder<*>.yesButton(noinline handler: (dialog: DialogInterface)
 
 inline fun AlertBuilder<*>.noButton(noinline handler: (dialog: DialogInterface) -> Unit) =
     negativeButton(android.R.string.no, handler)
+
+inline fun AlertBuilder<*>.customButton(@StringRes buttonLabel: Int, noinline handler: (dialog: DialogInterface) -> Unit) =
+    positiveButton(buttonLabel, handler)

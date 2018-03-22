@@ -5,229 +5,267 @@ apply plugin: 'kotlin-kapt' // Enables anotation processor support
 apply from: '../settings/codequality/quality.gradle'
 
 kapt {
-    generateStubs = true
+  generateStubs = true
 }
 
 android {
-    compileSdkVersion build_versions.target_sdk
-    buildToolsVersion build_versions.build_tools
+  compileSdkVersion build_versions.target_sdk
+  buildToolsVersion build_versions.build_tools
 
-    defaultConfig {
-        applicationId readApplicationId()
-        minSdkVersion build_versions.min_sdk
-        targetSdkVersion build_versions.target_sdk
-        manifestPlaceholders = [crashlyticsKey: readCrashlyticsKey()]
+  defaultConfig {
+    applicationId readApplicationId()
+    minSdkVersion build_versions.min_sdk
+    targetSdkVersion build_versions.target_sdk
+    manifestPlaceholders = [crashlyticsKey: readCrashlyticsKey()]
+  }
+
+  sourceSets {
+    main {
+      manifest.srcFile 'src/main/AndroidManifest.xml'
+      java.srcDirs = ['src/main/kotlin', 'src/main/java']
+      assets.srcDirs = ['src/main/assets']
+      res.srcDirs =
+        [
+          'src/main/res/layouts/activities',
+          'src/main/res/layouts/fragments',
+          'src/main/res/layouts/dialogs',
+          'src/main/res/layouts/items',
+          'src/main/res/layouts/views',
+          'src/main/res'
+        ]
+    }
+  }
+
+  androidExtensions {
+    experimental = true
+  }
+
+  dataBinding {
+    enabled = true
+  }
+
+  lintOptions {
+    abortOnError false
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  packagingOptions {
+    exclude 'META-INF/rxjava.properties'
+    exclude 'META-INF/DEPENDENCIES.txt'
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/NOTICE.txt'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/notice.txt'
+    exclude 'META-INF/license.txt'
+    exclude 'META-INF/dependencies.txt'
+    exclude 'META-INF/LGPL2.1'
+    exclude 'LICENSE.txt'
+    exclude 'LICENSE'
+  }
+
+  signingConfigs {
+    debug {
+      keyAlias 'androiddebugkey'
+      keyPassword 'android'
+      storePassword 'android'
+      storeFile file("$project.rootDir/settings/keystore/debug.keystore")
+    }
+    release {
+      keyAlias 'androidreleasekey'
+      keyPassword 'password'
+      storePassword 'password'
+      storeFile file("$project.rootDir/settings/keystore/release.jks")
+    }
+  }
+
+  flavorDimensions "mode"
+  productFlavors {
+    production {
+      dimension "mode"
+      applicationId readApplicationId()
+      versionCode readVersionCode("production")
+      versionName readVersionName("production")
+
+      it.buildConfigField 'Boolean', "IS_ENABLED", 'false'
+    }
+    qa {
+      dimension "mode"
+      applicationId readApplicationId()
+      versionCode readVersionCode("qa")
+      versionName readVersionName("qa")
+
+      it.buildConfigField 'Boolean', "IS_ENABLED", 'true'
+    }
+    development {
+      dimension "mode"
+      applicationId readApplicationId()
+      versionCode readVersionCode("development")
+      versionName readVersionName("development")
+
+      it.buildConfigField 'Boolean', "IS_ENABLED", 'true'
+    }
+  }
+
+  buildTypes {
+    buildTypes.each {
+      it.buildConfigField "String", 'BASEURL_API', "\"https://api.github.com/\""
+    }
+    release {
+      minifyEnabled false
+      proguard_list.each { pro_guard ->
+        proguardFile pro_guard
+      }
+      signingConfig signingConfigs.release
     }
 
-    sourceSets {
-        main {
-            manifest.srcFile 'src/main/AndroidManifest.xml'
-            java.srcDirs = ['src/main/kotlin', 'src/main/java']
-            assets.srcDirs = ['src/main/assets']
-            res.srcDirs =
-                    [
-                            'src/main/res/layouts/activities',
-                            'src/main/res/layouts/fragments',
-                            'src/main/res/layouts/dialogs',
-                            'src/main/res/layouts/items',
-                            'src/main/res/layouts/views',
-                            'src/main/res'
-                    ]
+    debug {
+      minifyEnabled false
+      proguard_list.each { pro_guard ->
+        proguardFile pro_guard
+      }
+      signingConfig signingConfigs.debug
+    }
+  }
+
+
+  android.applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+      def outputFile = output.outputFile
+      if (outputFile != null) {
+        def appName
+        if (project.hasProperty("applicationName")) {
+          appName = applicationName
+        } else {
+          appName = parent.name
         }
-    }
 
-    androidExtensions {
-        experimental = true
-    }
+        if (outputFile.name.endsWith('-release.apk')) {
+          def fileName
+          if (variant.productFlavors[0].name == "production")
+            fileName = outputFile.name.replace("app-production-release", "${appName}_prod_${readVersionNameForApk("production")}")
+          if (fileName != null)
+            outputFileName = fileName
 
-    lintOptions {
-        abortOnError false
-    }
+          def destination = "${project.rootDir}/settings/apk/${variant.productFlavors[0].name}"
+          def taskSuffix = variant.name.capitalize()
+          def assembleTaskName = "assemble${taskSuffix}"
+          def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type: Copy) {
+            from("${project.buildDir}/outputs/apk/${variant.productFlavors[0].name}/release/${outputFileName}")
+            into(destination)
+          }
+          tasks[assembleTaskName].finalizedBy = [copyAPKTask]
+          if (variant.productFlavors[0].name == "production")
+            outputFile.name.replace("${appName}_prod_${readVersionNameForApk("production")}", "app-production-release")
+        } else if (outputFile.name.endsWith('-debug.apk')) {
+          def fileName1
+          if (variant.productFlavors[0].name == "development") {
+            fileName1 = outputFile.name.replace("app-development-debug", "${appName}_dev_${readVersionNameForApk("development")}")
+          } else if (variant.productFlavors[0].name == "qa") {
+            fileName1 = outputFile.name.replace("app-qa-debug", "${appName}_qa_${readVersionNameForApk("qa")}")
+          }
+          if (fileName1 != null)
+            outputFileName = fileName1
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    packagingOptions {
-        exclude 'META-INF/rxjava.properties'
-        exclude 'META-INF/DEPENDENCIES.txt'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/dependencies.txt'
-        exclude 'META-INF/LGPL2.1'
-        exclude 'LICENSE.txt'
-        exclude 'LICENSE'
-    }
-
-    signingConfigs {
-        debug {
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storePassword 'android'
-            storeFile file("$project.rootDir/settings/keystore/debug.keystore")
+          def destination = "${project.rootDir}/settings/apk/${variant.productFlavors[0].name}"
+          def taskSuffix = variant.name.capitalize()
+          def assembleTaskName = "assemble${taskSuffix}"
+          def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type: Copy) {
+            from("${project.buildDir}/outputs/apk/${variant.productFlavors[0].name}/debug/${outputFileName}")
+            into(destination)
+          }
+          tasks[assembleTaskName].finalizedBy = [copyAPKTask]
+          if (variant.productFlavors[0].name == "development") {
+            outputFile.name.replace("${appName}_dev_${readVersionNameForApk("development")}", "app-development-debug")
+          } else if (variant.productFlavors[0].name == "qa") {
+            outputFile.name.replace("${appName}_qa_${readVersionNameForApk("qa")}", "app-qa-debug")
+          }
         }
-        release {
-            keyAlias 'androidreleasekey'
-            keyPassword 'password'
-            storePassword 'password'
-            storeFile file("$project.rootDir/settings/keystore/release.jks")
-        }
+      }
     }
+  }
 
-    flavorDimensions "mode"
-    productFlavors {
-        production {
-            dimension "mode"
-            applicationId readApplicationId()
-            versionCode readVersionCode("production")
-            versionName readVersionName("production")
-
-            it.buildConfigField 'Boolean', "IS_ENABLED", 'false'
+  configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+      def requested = details.requested
+      if (requested.group == 'com.android.support') {
+        if (!requested.name.startsWith("multidex")) {
+          details.useVersion '27.0.2'
         }
-        qa {
-            dimension "mode"
-            applicationId readApplicationId()
-            versionCode readVersionCode("qa")
-            versionName readVersionName("qa")
-
-            it.buildConfigField 'Boolean', "IS_ENABLED", 'true'
-        }
-        development {
-            dimension "mode"
-            applicationId readApplicationId()
-            versionCode readVersionCode("development")
-            versionName readVersionName("development")
-
-            it.buildConfigField 'Boolean', "IS_ENABLED", 'true'
-        }
+      }
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguard_list.each { pro_guard ->
-                proguardFile pro_guard
-            }
-            signingConfig signingConfigs.release
-            //it.buildConfigField "String", 'BASEURL_API', "\"http://simform.solutions/bearded-lovers-app-backend/public/api/v2/\""
-        }
-
-        debug {
-            minifyEnabled false
-            proguard_list.each { pro_guard ->
-                proguardFile pro_guard
-            }
-            signingConfig signingConfigs.debug
-            //it.buildConfigField "String", 'BASEURL_API', "\"http://simform.solutions/bearded-lovers-app-backend/public/api/v2/\""
-        }
-    }
-
-
-    android.applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            def outputFile = output.outputFile
-            if (outputFile != null) {
-                def appName
-                if (project.hasProperty("applicationName")) {
-                    appName = applicationName
-                } else {
-                    appName = parent.name
-                }
-
-                if (outputFile.name.endsWith('-release.apk')) {
-                    def fileName
-                    if (variant.productFlavors[0].name == "production")
-                        fileName = outputFile.name.replace("app-production-release", "${appName}_prod_${readVersionNameForApk("production")}")
-                    if(fileName != null)
-                        outputFileName = fileName
-
-                    def destination = "${project.rootDir}/settings/apk/${variant.productFlavors[0].name}"
-                    def taskSuffix = variant.name.capitalize()
-                    def assembleTaskName = "assemble${taskSuffix}"
-                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type: Copy) {
-                        from("${project.buildDir}/outputs/apk/${variant.productFlavors[0].name}/release/${outputFileName}")
-                        into(destination)
-                    }
-                    tasks[assembleTaskName].finalizedBy = [copyAPKTask]
-                    if (variant.productFlavors[0].name == "production")
-                        outputFile.name.replace("${appName}_prod_${readVersionNameForApk("production")}", "app-production-release")
-                } else if (outputFile.name.endsWith('-debug.apk')) {
-                    def fileName1
-                    if (variant.productFlavors[0].name == "development") {
-                        fileName1 = outputFile.name.replace("app-development-debug", "${appName}_dev_${readVersionNameForApk("development")}")
-                    } else if (variant.productFlavors[0].name == "qa") {
-                        fileName1 = outputFile.name.replace("app-qa-debug", "${appName}_qa_${readVersionNameForApk("qa")}")
-                    }
-                    if(fileName1 != null)
-                        outputFileName = fileName1
-
-                    def destination = "${project.rootDir}/settings/apk/${variant.productFlavors[0].name}"
-                    def taskSuffix = variant.name.capitalize()
-                    def assembleTaskName = "assemble${taskSuffix}"
-                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type: Copy) {
-                        from("${project.buildDir}/outputs/apk/${variant.productFlavors[0].name}/debug/${outputFileName}")
-                        into(destination)
-                    }
-                    tasks[assembleTaskName].finalizedBy = [copyAPKTask]
-                    if (variant.productFlavors[0].name == "development") {
-                        outputFile.name.replace("${appName}_dev_${readVersionNameForApk("development")}", "app-development-debug")
-                    } else if (variant.productFlavors[0].name == "qa") {
-                        outputFile.name.replace("${appName}_qa_${readVersionNameForApk("qa")}", "app-qa-debug")
-                    }
-                }
-            }
-        }
-    }
-
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            def requested = details.requested
-            if (requested.group == 'com.android.support') {
-                if (!requested.name.startsWith("multidex")) {
-                    details.useVersion '27.0.2'
-                }
-            }
-        }
-    }
+  }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    // Support libraries
-    implementation deps.support.app_compat
-    implementation deps.support.constraint_layout
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
+  // Support libraries
+  implementation deps.support.app_compat
+  implementation deps.support.v4
+  implementation deps.support.recycler_view
+  implementation deps.support.constraint_layout
 
-    implementation project(':kotlinextensions')
+  implementation deps.google.maps
+  implementation deps.google.location
+
+  kapt deps.other.binding
+
+  implementation deps.retrofit.lib
+  implementation deps.retrofit.adapter_rx
+  implementation deps.retrofit.gson
+  implementation deps.other.live_adapter_rx2
+
+  implementation deps.okhttp.logging
+
+  implementation deps.lifecycle.lib
+  implementation deps.lifecycle.extensions
+  kapt deps.lifecycle.compiler
+
+  // dependency injection
+  implementation deps.dagger.lib
+  kapt deps.dagger.compiler
+  kapt deps.dagger.android_support_compiler
+  implementation deps.dagger.android_support
+
+  // reactive
+  implementation deps.javaxAndRx.android
+  implementation deps.javaxAndRx.android2
+  implementation deps.javaxAndRx.java
+  implementation deps.javaxAndRx.java2
+
+  implementation deps.javaxAndRx.inject
+  implementation deps.picasso.lib
+
+  implementation project(':kotlinextensions')
 }
 
 def readVersionNameForApk(def buildType = "buildVariant") {
-    def version = readVersionFile(buildType)
-    return "V${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})_${new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("UTC"))}"
+  def version = readVersionFile(buildType)
+  return "V${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})_${new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("UTC"))}"
 }
 
 def readVersionName(def buildType = "buildVariant") {
-    def version = readVersionFile(buildType)
-    return "${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})"
+  def version = readVersionFile(buildType)
+  return "${version['VERSION_MAJOR']}.${version['VERSION_MINOR']}.${version['VERSION_PATCH']}(${version['VERSION_CODE']})"
 }
 
 def readVersionCode(def buildType = "buildVariant") {
-    def version = readVersionFile(buildType)
-    def build = version['VERSION_CODE'] as int
-    return build
+  def version = readVersionFile(buildType)
+  def build = version['VERSION_CODE'] as int
+  return build
 }
 
 def readCrashlyticsKey() {
-    def version = readVersionFile("project")
-    return "${version['CRASHLYTICS_KEY']}"
+  def version = readVersionFile("project")
+  return "${version['CRASHLYTICS_KEY']}"
 }
 
 def readApplicationId() {
-    def version = readVersionFile("project")
-    return "${version['APPLICATION_ID']}"
+  def version = readVersionFile("project")
+  return "${version['APPLICATION_ID']}"
 }

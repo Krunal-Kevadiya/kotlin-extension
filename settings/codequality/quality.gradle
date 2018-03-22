@@ -1,5 +1,5 @@
 /**
- * Set up Checkstyle, Findbugs PMD, Lint, Detekt, Ktlint and Spotless to perform extensive code analysis.
+ * Set up Checkstyle, Findbugs, PMD, Lint, Detekt, Ktlint and Spotless to perform extensive code analysis.
  *
  * Gradle tasks added:
  * - checkstyle

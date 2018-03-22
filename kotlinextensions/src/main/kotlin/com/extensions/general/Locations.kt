@@ -1,9 +1,10 @@
 package com.extensions.general
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -12,36 +13,34 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
-import android.os.AsyncTask
 import android.os.Binder
 import android.os.Bundle
 import android.os.Looper
+import android.support.v4.app.ActivityCompat
+import android.util.Log
 import android.view.Surface
 import com.extensions.content.locationManager
 import com.extensions.content.sensorManager
 import com.extensions.content.windowManager
-import com.extensions.logging.Logger
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.LocationListener
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import java.io.IOException
 import java.util.Locale
 
-@SuppressLint("MissingPermission", "Registered")
-class Locations :Service() {
+class Locations : Service() {
     private val localBinder = LocalBinder()
     private val sensorEventListener = SensorListener()
     private val fusedLocationListener = MyLocationListener()
     private val gpsLocationListener = LocationChangeListener()
     private val networkLocationListener = LocationChangeListener()
-    var mGoogleApiClient :GoogleApiClient? = null
 
     companion object {
-        val ARG_FUSED_LOCATION = "is_fused_location_api"
-        private val TWO_MINUTES = 1000 * 60 * 2
-        private val MIN_BEARING_DIFF = 2.0f
-        private val FASTEST_INTERVAL_IN_MS = 1000L
+        const val ARG_FUSED_LOCATION = "is_fused_location_api"
+        private const val TWO_MINUTES = 1000 * 60 * 2
+        private const val MIN_BEARING_DIFF = 2.0f
+        private const val FASTEST_INTERVAL_IN_MS = 1000L
     }
 
     private var axisX :Int = 0
@@ -50,11 +49,14 @@ class Locations :Service() {
     private var isFusedLocationApi :Boolean = false
     private var currentBestLocation :Location? = null
     private var locationCallback :LocationCallback? = null
+    private var mFusedLocationClient :FusedLocationProviderClient? = null
     override fun onBind(intent :Intent?) = localBinder
+
     override fun onStartCommand(intent :Intent?, flags :Int, startId :Int) :Int {
         super.onStartCommand(intent, flags, startId)
         if(intent != null && intent.hasExtra(ARG_FUSED_LOCATION))
             isFusedLocationApi = intent.getBooleanExtra(ARG_FUSED_LOCATION, false)
+        onCreate()
         return START_STICKY
     }
 
@@ -68,38 +70,27 @@ class Locations :Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(isFusedLocationApi)
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, fusedLocationListener)
-        else
+        if(isFusedLocationApi) {
+            mFusedLocationClient?.removeLocationUpdates(fusedLocationListener)
+            locationCallback = null
+        } else
             stopUpdates()
         sensorManager.unregisterListener(sensorEventListener)
     }
 
     private fun getLocation() {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
         if(isFusedLocationApi) {
-            if(mGoogleApiClient == null) {
-                mGoogleApiClient = GoogleApiClient.Builder(this)
-                        .addConnectionCallbacks(object :GoogleApiClient.ConnectionCallbacks {
-                            override fun onConnected(bundle :Bundle?) {
-                                getContinuousLocation()
-                            }
-
-                            override fun onConnectionSuspended(i :Int) {}
-                        })
-                        .addOnConnectionFailedListener({connectionResult ->
-                            locationCallback?.onFailure(Exception(connectionResult.errorMessage))
-
-                            if(mGoogleApiClient != null) {
-                                if(mGoogleApiClient!!.isConnected)
-                                    mGoogleApiClient!!.disconnect()
-                                mGoogleApiClient = null
-                            }
-                        })
-                        .addApi(LocationServices.API)
-                        .build()
-            }
-            if(mGoogleApiClient != null && !mGoogleApiClient!!.isConnected)
-                mGoogleApiClient!!.connect()
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            val mLocationRequest = LocationRequest()
+            mLocationRequest.interval = TWO_MINUTES.toLong()
+            mLocationRequest.fastestInterval = FASTEST_INTERVAL_IN_MS
+            mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+            mFusedLocationClient?.requestLocationUpdates(mLocationRequest, fusedLocationListener, Looper.myLooper());
         } else {
             val lastKnownGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             val lastKnownNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
@@ -130,23 +121,7 @@ class Locations :Service() {
         sensorManager.registerListener(sensorEventListener, mSensor, SensorManager.SENSOR_DELAY_NORMAL * 5)
     }
 
-    private fun getContinuousLocation() {
-        if(checkIfLocationIsEnabled()) {
-            class BackgroundTask :AsyncTask<Void, Void, Void>() {
-                override fun doInBackground(vararg params :Void?) :Void? {
-                    val locationRequest = LocationRequest()
-                    locationRequest.interval = FASTEST_INTERVAL_IN_MS
-                    locationRequest.fastestInterval = FASTEST_INTERVAL_IN_MS
-                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, fusedLocationListener, Looper.getMainLooper())
-                    return null
-                }
-            }
-            BackgroundTask().execute()
-        } else
-            locationCallback?.locationDisabled()
-    }
-
-    fun setLocationCallback(callback :LocationCallback) {
+    fun setLocationCallback(callback :LocationCallback?) {
         locationCallback = callback
     }
 
@@ -186,7 +161,9 @@ class Locations :Service() {
     }
 
     private fun isSameProvider(provider1 :String?, provider2 :String?) :Boolean = if(provider1 == null) provider2 == null else provider1 == provider2
+
     private fun checkIfLocationIsEnabled() :Boolean = (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+
     private inner class LocationChangeListener :android.location.LocationListener {
         override fun onLocationChanged(location :Location?) {
             if(location == null)
@@ -207,7 +184,7 @@ class Locations :Service() {
     private inner class SensorListener :SensorEventListener {
         override fun onAccuracyChanged(sensor :Sensor?, accuracy :Int) {
             if(sensor?.type == Sensor.TYPE_ROTATION_VECTOR) {
-                Logger.i("Rotation sensor accuracy changed to: " + accuracy)
+                Log.e(Locations::class.java.simpleName, "Rotation sensor accuracy changed to: $accuracy")
             }
         }
 
@@ -230,10 +207,14 @@ class Locations :Service() {
         }
     }
 
-    private inner class MyLocationListener :LocationListener {
-        override fun onLocationChanged(location :Location) {
-            if(isBetterLocation(location, currentBestLocation)) {
-                currentBestLocation = location
+    private inner class MyLocationListener :com.google.android.gms.location.LocationCallback() {
+        override fun onLocationResult(location :LocationResult?) {
+            super.onLocationResult(location)
+            if(location == null)
+                return
+
+            if(isBetterLocation(location.lastLocation, currentBestLocation)) {
+                currentBestLocation = location.lastLocation
                 currentBestLocation?.bearing = bearing
                 locationCallback?.onSuccess(currentBestLocation as Location)
             }
@@ -266,9 +247,9 @@ class Locations :Service() {
         val geoCoder = Geocoder(this, Locale.ENGLISH)
         try {
             return geoCoder.getFromLocation(currentBestLocation?.latitude
-                    ?: 0.0, currentBestLocation?.longitude ?: 0.0, 1)
+                ?: 0.0, currentBestLocation?.longitude ?: 0.0, 1)
         } catch(e :IOException) {
-            Logger.e("Impossible to connect to Geocoder" + e.toString())
+            Log.e(Locations::class.java.simpleName, "Impossible to connect to Geocoder: $e")
         }
 
         return null
@@ -278,8 +259,7 @@ class Locations :Service() {
         val addresses = getGeoCoderAddress()
         return if(addresses != null && addresses.isNotEmpty())
             addresses[0]
-        else
-            null
+        else null
     }
 
     fun Context.getAddressLine() :String = getFirstAddress()?.getAddressLine(0) ?: ""

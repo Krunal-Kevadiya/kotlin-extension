@@ -444,29 +444,29 @@ private fun getActivity(context: Context): Activity? {
 }
 
 private fun Context.isGranted(permissions : Array<Permission>): Array<Permission> {
-    val notGranted: Array<Permission> = arrayOf()
+    val notGranted: ArrayList<Permission> = ArrayList()
     permissions.forEach {
         val result = ContextCompat.checkSelfPermission(this, it.value)
         if (result != PackageManager.PERMISSION_GRANTED)
-            notGranted[notGranted.size] = it
+            notGranted.add(it)
     }
-    return notGranted
+    return notGranted.toTypedArray()
 }
 
 private fun Context.isRationale(permissions: Array<Permission>): Array<Permission> {
-    val notRationale: Array<Permission> = arrayOf()
+    val notRationale: ArrayList<Permission> = ArrayList()
     permissions.forEach {
         val result = getActivity(this)?.let { activity -> shouldShowRequestPermissionRationale(activity, it.value) }
         if (result!!)
-            notRationale[notRationale.size] = it
+            notRationale.add(it)
     }
-    return notRationale
+    return notRationale.toTypedArray()
 }
 
 private fun getPermissions(permissions: Array<String>): Array<Permission> {
-    val permission: Array<Permission> = arrayOf()
+    val permission: ArrayList<Permission> = ArrayList()
     permissions.forEach {
-        permission[permission.size] = Permission.filter(it)
+        permission.add(Permission.filter(it))
     }
-    return  permission
+    return  permission.toTypedArray()
 }

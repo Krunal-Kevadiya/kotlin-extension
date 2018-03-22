@@ -28,6 +28,9 @@ fun ViewGroup.inflateView(@LayoutRes layoutRes: Int): View =
 fun ViewGroup.inflateBindView(@LayoutRes layoutRes: Int): ViewDataBinding =
     DataBindingUtil.inflate(context.layoutInflater, layoutRes, this, false)
 
+fun <VDS : ViewDataBinding> ViewGroup.inflateCustomBindView(@LayoutRes layoutRes: Int): VDS {
+    return (DataBindingUtil.inflate(context.layoutInflater, layoutRes, this, false) as VDS)
+}
 
 fun Context.inflateBindView(@LayoutRes layoutRes: Int): ViewDataBinding =
     DataBindingUtil.inflate(layoutInflater, layoutRes, null, false)

@@ -11,7 +11,7 @@ import android.os.IBinder
 import com.extensions.general.Locations
 
 class MyLocationUpdateObserver(var context: Context, var isFusedLocationApi: Boolean, var listener: Locations.LocationCallback) : LifecycleObserver {
-    lateinit var locationService:Locations
+    lateinit var locationService: Locations
     var mBound = false
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -25,7 +25,6 @@ class MyLocationUpdateObserver(var context: Context, var isFusedLocationApi: Boo
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause() {
         if (mBound) {
-            locationService.stopUpdates()
             context.unbindService(mConnection)
             mBound = false
         }
@@ -38,15 +37,11 @@ class MyLocationUpdateObserver(var context: Context, var isFusedLocationApi: Boo
             mBound = true
 
             if (mBound)
-                init()
+                locationService.setLocationCallback(listener)
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
             mBound = false
         }
-    }
-
-    private fun init() {
-        locationService.setLocationCallback(listener)
     }
 }

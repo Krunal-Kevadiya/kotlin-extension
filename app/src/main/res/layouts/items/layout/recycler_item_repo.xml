@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:binds="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="data"
+            type="com.kotlinextension.networking.model.success.Item"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/_8dp">
+
+        <ImageView
+            android:id="@+id/img_profile"
+            android:layout_width="@dimen/_80dp"
+            android:layout_height="@dimen/_80dp"
+            tools:src="@tools:sample/avatars"
+            android:layout_marginStart="@dimen/_8dp"
+            binds:avatar_url="@{data.owner.avatarUrl}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/txt_repo_name"
+            android:layout_width="@dimen/_0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/_8dp"
+            android:layout_marginStart="@dimen/_8dp"
+            tools:text="@string/app_name"
+            android:textStyle="bold"
+            android:text="@{data.fullName}"
+            android:textColor="@color/colorPrimary"
+            android:textAppearance="?android:textAppearanceMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/img_profile" />
+
+        <TextView
+            android:id="@+id/txt_repo_desc"
+            android:layout_width="@dimen/_0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_8dp"
+            tools:text="@string/app_name"
+            android:text="@{data.description}"
+            android:textColor="@android:color/black"
+            android:textAppearance="?android:textAppearanceSmall"
+            app:layout_constraintEnd_toEndOf="@+id/txt_repo_name"
+            app:layout_constraintStart_toStartOf="@+id/txt_repo_name"
+            app:layout_constraintTop_toBottomOf="@+id/txt_repo_name" />
+
+        <android.support.constraint.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="img_profile,txt_repo_desc" />
+
+        <View
+            android:layout_width="@dimen/_0dp"
+            android:layout_height="@dimen/_1dp"
+            android:layout_marginTop="@dimen/_8dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier"/>
+    </android.support.constraint.ConstraintLayout>
+</layout>

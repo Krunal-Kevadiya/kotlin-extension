@@ -16,7 +16,6 @@ import android.support.v4.app.ActivityCompat.shouldShowRequestPermissionRational
 import android.support.v4.content.ContextCompat
 import com.extensions.interfaces.F2
 
-
 class PermissionExtensions private constructor() {
     @JvmOverloads
     fun checkAndRequestPermission(context: Context, array: Array<String>, callback: (Int, List<String>) -> Unit = { _, _ -> }): Boolean

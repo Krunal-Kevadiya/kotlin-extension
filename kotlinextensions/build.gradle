@@ -100,7 +100,7 @@ dependencies {
 
     // RxJava
     implementation deps.javaxAndRx.java2
-    implementation(deps.javaxAndRx.android) {
+    implementation(deps.javaxAndRx.android2) {
         exclude group: 'io.reactivex', module: 'rxjava2'
     }
 }
