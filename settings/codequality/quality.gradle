@@ -29,17 +29,23 @@ dependencies {
 def isJava = plugins.hasPlugin('java')
 def qualityConfigDir = "$project.rootDir/settings/codequality"
 def reportsDir = "$project.rootDir/settings/reports"
+def sourceDir = "$project.rootDir"
 
-check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'ktlint', 'ktlintFormat', 'detekt', 'spotlessApply', 'spotlessCheck'
+check.dependsOn 'checkstyle', 'detekt', 'findbugs', 'ktlint', 'ktlintFormat', 'pmd', 'spotlessApply', 'spotlessCheck'
 if (!isJava) {
   check.dependsOn 'lint'
 }
 
+gradle.taskGraph.afterTask { Task task, TaskState state ->
+  println "Task Name => " + task.name
+}
+
 //Check Style
 task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code style checks') {
+  showViolations = true
   configFile file("$qualityConfigDir/checkstyle/checkstyle-config.xml")
   //configProperties.checkstyleSuppressionFilterPath file("$qualityConfigDir/checkstyle/suppressions.xml")
-  source 'src'
+  source  'src'
   include '**/*.java'
   exclude '**/model/**'
   exclude '**/AppLogger.java'
@@ -55,7 +61,8 @@ task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code
     html.setDestination(new File("$reportsDir/checkstyle/checkstyle.html"))
   }
 
-  classpath = files()
+  //classpath = files()
+  classpath = files("$sourceDir")
 }
 
 //Find Bugs
@@ -68,11 +75,12 @@ task findbugs(type: FindBugs,
   effort = "max"
   reportLevel = "high"
   excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
-  if (isJava) {
-    classes = files("$project.rootDir/app/build/classes")
+  classes = files("$sourceDir")
+  /*if (isJava) {
+    classes = files("$sourceDir/app/build/classes")
   } else {
-    classes = files("$project.rootDir/app/build/intermediates/classes")
-  }
+    classes = files("$sourceDir/app/build/intermediates/classes")
+  }*/
 
   source 'src'
   include '**/*.java'
@@ -113,10 +121,10 @@ if (!isJava) {
       disable 'NewApi' // gradle build will compile code use `Objects.requireNonNull()` for lambda
       abortOnError true
       xmlReport true
-      xmlOutput project.file('build/reports/lint/lint-report.xml')
+      xmlOutput project.file("$reportsDir/lint/lints.xml")
       htmlReport true
-      htmlOutput project.file('build/reports/lint/lint-report.html')
-      lintConfig file("${project.rootDir}/AndroidCodeQualityConfig/quality/lint/lint.xml")
+      htmlOutput project.file("$reportsDir/lint/lints.html")
+      lintConfig file("${qualityConfigDir}/lint/lint.xml")
     }
 
     testOptions.unitTests.all {
@@ -142,16 +150,16 @@ task ktlint(type: JavaExec, group: 'verification', description: 'Check Kotlin co
 task ktlintFormat(type: JavaExec, group: 'formatting', description: 'Fix Kotlin code style deviations.') {
   classpath = configurations.ktlint
   main = "com.github.shyiko.ktlint.Main"
-  args "--reporter=plain?group_by_file", "--reporter=checkstyle,output=${reportsDir}/ktlint/ktlint.xml",
-    "--reporter=json,output=${reportsDir}/ktlint/ktlint.json",
-    "--reporter=plain,output=${reportsDir}/ktlint/ktlint.txt", "src/**/*.kt"
+  args "--reporter=plain?group_by_file", "--reporter=checkstyle,output=${reportsDir}/ktlint/format/ktlint.xml",
+    "--reporter=json,output=${reportsDir}/ktlint/format/ktlint.json",
+    "--reporter=plain,output=${reportsDir}/ktlint/format/ktlint.txt", "src/**/*.kt"
 }
 
 //detekt
 task detekt(type: JavaExec, group: 'verification') {
   main = "io.gitlab.arturbosch.detekt.cli.Main"
   classpath = configurations.detekt
-  def input = "$projectDir"
+  def input = "$sourceDir"
   def config = "$qualityConfigDir/detekt/detekt.yml"
   def configResource = "/detekt.yml"
   def filters = ".*test.*, .*/resources/.*"
