@@ -1,5 +1,5 @@
 /**
- * Set up Checkstyle, Findbugs and PMD to perform extensive code analysis.
+ * Set up Checkstyle, Findbugs PMD, Lint, Detekt, Ktlint and Spotless to perform extensive code analysis.
  *
  * Gradle tasks added:
  * - checkstyle
@@ -13,6 +13,7 @@
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
+apply plugin: 'com.diffplug.gradle.spotless'
 
 configurations {
   ktlint
@@ -29,7 +30,7 @@ def isJava = plugins.hasPlugin('java')
 def qualityConfigDir = "$project.rootDir/settings/codequality"
 def reportsDir = "$project.rootDir/settings/reports"
 
-check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'ktlint', 'ktlintFormat', 'detekt'
+check.dependsOn 'checkstyle', 'findbugs', 'pmd', 'ktlint', 'ktlintFormat', 'detekt', 'spotlessApply', 'spotlessCheck'
 if (!isJava) {
   check.dependsOn 'lint'
 }
@@ -130,8 +131,7 @@ if (!isJava) {
 }
 
 //Kt Lint
-task ktlint(type: JavaExec, group: "verification") {
-  description = "Check Kotlin code style."
+task ktlint(type: JavaExec, group: 'verification', description: 'Check Kotlin code style.') {
   classpath = configurations.ktlint
   main = "com.github.shyiko.ktlint.Main"
   args "--reporter=plain?group_by_file", "--reporter=checkstyle,output=${reportsDir}/ktlint/ktlint.xml",
@@ -139,8 +139,7 @@ task ktlint(type: JavaExec, group: "verification") {
     "--reporter=plain,output=${reportsDir}/ktlint/ktlint.txt", "src/**/*.kt"
 }
 
-task ktlintFormat(type: JavaExec, group: "formatting") {
-  description = "Fix Kotlin code style deviations."
+task ktlintFormat(type: JavaExec, group: 'formatting', description: 'Fix Kotlin code style deviations.') {
   classpath = configurations.ktlint
   main = "com.github.shyiko.ktlint.Main"
   args "--reporter=plain?group_by_file", "--reporter=checkstyle,output=${reportsDir}/ktlint/ktlint.xml",
@@ -149,7 +148,7 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 }
 
 //detekt
-task detekt(type: JavaExec) {
+task detekt(type: JavaExec, group: 'verification') {
   main = "io.gitlab.arturbosch.detekt.cli.Main"
   classpath = configurations.detekt
   def input = "$projectDir"
@@ -162,4 +161,15 @@ task detekt(type: JavaExec) {
 
   def params = ['-i', input, '-c', config, '-cr', configResource, '-f', filters, '-o', output, '-on', outputName, '-b', baseline]
   args(params)
+}
+
+//spotless
+spotless {
+  kotlin {
+    target "**/*.kt"
+    trimTrailingWhitespace()
+    indentWithTabs() // or spaces. Takes an integer argument if you don't like 4
+    endWithNewline()
+    licenseHeaderFile "$qualityConfigDir/spotless/copyright.kt"
+  }
 }
