@@ -19,12 +19,13 @@ abstract class BaseActivity<VDB : ViewDataBinding, BVM :BaseViewModel<*>> : AppC
 	lateinit var mViewModel: BVM
 	private lateinit var dialog: Dialog
 
-	@Inject
-	lateinit var viewModelFactory: ViewModelProvider.Factory
-	@Inject
-	lateinit var androidInjector: DispatchingAndroidInjector<Fragment>
+    @Inject
+    lateinit var fragmentInjector: DispatchingAndroidInjector<Fragment>
 
-	override fun supportFragmentInjector() = androidInjector
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = fragmentInjector
 
 	override fun onCreate(@Nullable savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)

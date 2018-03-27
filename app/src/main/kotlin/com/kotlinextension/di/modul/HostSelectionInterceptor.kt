@@ -1,4 +1,4 @@
-package com.kotlinextension.networking
+package com.kotlinextension.di.modul
 
 import dagger.Module
 import okhttp3.HttpUrl

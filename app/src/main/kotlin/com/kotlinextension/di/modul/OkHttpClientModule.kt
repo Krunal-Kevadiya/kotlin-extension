@@ -1,6 +1,5 @@
 package com.kotlinextension.di.modul
 
-import com.kotlinextension.networking.HostSelectionInterceptor
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -9,26 +8,23 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module(includes = [HostSelectionInterceptor::class])
-internal object OkHttpClientModule {
+class OkHttpClientModule {
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun providesLoggingInterceptor(): HttpLoggingInterceptor {
+    internal fun providesLoggingInterceptor(): HttpLoggingInterceptor {
 		return HttpLoggingInterceptor()
 			.apply { level = HttpLoggingInterceptor.Level.BODY }
 	}
 
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun provideHostSelectionInterceptor(): HostSelectionInterceptor {
+    internal fun provideHostSelectionInterceptor(): HostSelectionInterceptor {
 		return HostSelectionInterceptor.get()
 	}
 
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun providesOkHttpClientWithCache(loggingInterceptor: HttpLoggingInterceptor, hostSelectionInterceptor: HostSelectionInterceptor): OkHttpClient {
+    internal fun providesOkHttpClientWithCache(loggingInterceptor: HttpLoggingInterceptor, hostSelectionInterceptor: HostSelectionInterceptor): OkHttpClient {
 		val timeout = 3
 
 		return okhttp3.OkHttpClient.Builder()

@@ -2,11 +2,11 @@ package com.kotlinextension.ui.map
 
 import android.content.Context
 import com.kotlinextension.base.BaseViewModel
-import com.kotlinextension.networking.NetworkService
+import com.kotlinextension.data.DataSource
 import com.kotlinextension.utils.CurrentLocationLiveData
 import javax.inject.Inject
 
-class MapsViewModel @Inject constructor(networkService: NetworkService) : BaseViewModel<MapsNavigator>(networkService) {
+class MapsViewModel @Inject constructor(dataSource: DataSource) : BaseViewModel<MapsNavigator>(dataSource) {
 	lateinit var location:CurrentLocationLiveData
 
 	fun initLocation(context :Context) {

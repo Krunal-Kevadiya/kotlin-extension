@@ -7,10 +7,11 @@
     <data>
         <variable
             name="data"
-            type="com.kotlinextension.networking.model.success.Item"/>
+            type="com.kotlinextension.data.db.entity.User"/>
     </data>
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/_8dp">
@@ -21,7 +22,6 @@
             android:layout_height="@dimen/_80dp"
             tools:src="@tools:sample/avatars"
             android:layout_marginStart="@dimen/_8dp"
-            binds:avatar_url="@{data.owner.avatarUrl}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -33,7 +33,7 @@
             android:layout_marginStart="@dimen/_8dp"
             tools:text="@string/app_name"
             android:textStyle="bold"
-            android:text="@{data.fullName}"
+            android:text="@{data.name}"
             android:textColor="@color/colorPrimary"
             android:textAppearance="?android:textAppearanceMedium"
             app:layout_constraintEnd_toEndOf="parent"
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/_8dp"
             tools:text="@string/app_name"
-            android:text="@{data.description}"
+            android:text="@{data.name}"
             android:textColor="@android:color/black"
             android:textAppearance="?android:textAppearanceSmall"
             app:layout_constraintEnd_toEndOf="@+id/txt_repo_name"

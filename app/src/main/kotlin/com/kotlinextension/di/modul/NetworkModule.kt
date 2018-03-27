@@ -3,8 +3,8 @@ package com.kotlinextension.di.modul
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.kotlinextension.BuildConfig
-import com.kotlinextension.networking.NetworkService
-import com.kotlinextension.networking.adapter.LiveDataCallAdapterFactory
+import com.kotlinextension.data.remote.ApiService
+import com.kotlinextension.data.remote.adapter.LiveDataCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -13,44 +13,39 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module(includes = [OkHttpClientModule::class])
-internal object NetworkModule {
+class NetworkModule {
 
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun provideBaseUrlString(): String {
+	internal fun provideBaseUrlString(): String {
 		return BuildConfig.BASEURL_API
 	}
 
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun providesGson(): Gson {
+	internal fun providesGson(): Gson {
 		return GsonBuilder().create()
 	}
 
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun gsonConverterFactory(gson: Gson): GsonConverterFactory {
+    internal fun gsonConverterFactory(gson: Gson): GsonConverterFactory {
 		return GsonConverterFactory.create(gson)
 	}
 
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun provideBaseRetrofitWithCache(baseUrl: String, okHttpClient: OkHttpClient, gsonConverterFactory: GsonConverterFactory): Retrofit {
+    internal fun provideBaseRetrofit(baseUrl: String, okHttpClient: OkHttpClient, gsonConverterFactory: GsonConverterFactory): Retrofit {
 		return Retrofit.Builder()
 				.baseUrl(baseUrl)
 				.client(okHttpClient)
 				.addConverterFactory(gsonConverterFactory)
-				.addCallAdapterFactory(LiveDataCallAdapterFactory()).build()
+				.addCallAdapterFactory(LiveDataCallAdapterFactory.create()).build()
 	}
 
 	@Singleton
 	@Provides
-	@JvmStatic
-	fun providesNetworkServiceWithCache(builder: Retrofit): NetworkService {
-		return builder.create(NetworkService::class.java)
+    internal fun providesApiService(builder: Retrofit): ApiService {
+		return builder.create(ApiService::class.java)
 	}
 }

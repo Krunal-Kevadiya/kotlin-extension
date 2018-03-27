@@ -218,7 +218,6 @@ dependencies {
   implementation deps.retrofit.lib
   implementation deps.retrofit.adapter_rx
   implementation deps.retrofit.gson
-  implementation deps.other.live_adapter_rx2
 
   implementation deps.okhttp.logging
 
@@ -226,13 +225,19 @@ dependencies {
   implementation deps.lifecycle.extensions
   kapt deps.lifecycle.compiler
 
+  implementation deps.room.lib
+  implementation deps.room.rxjava2
+  kapt deps.room.compiler
+
   // dependency injection
   implementation deps.dagger.lib
   kapt deps.dagger.compiler
   kapt deps.dagger.android_support_compiler
+  implementation deps.dagger.android
   implementation deps.dagger.android_support
 
   // reactive
+  implementation deps.javaxAndRx.rxkotlin
   implementation deps.javaxAndRx.android
   implementation deps.javaxAndRx.android2
   implementation deps.javaxAndRx.java

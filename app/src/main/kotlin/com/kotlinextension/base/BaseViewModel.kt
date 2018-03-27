@@ -1,15 +1,8 @@
 package com.kotlinextension.base
 
 import android.arch.lifecycle.ViewModel
-import com.kotlinextension.networking.NetworkService
-import io.reactivex.disposables.CompositeDisposable
+import com.kotlinextension.data.DataSource
 
-abstract class BaseViewModel<N>(val networkService: NetworkService) : ViewModel() {
-	private val compositeDisposable: CompositeDisposable = CompositeDisposable()
+abstract class BaseViewModel<N>(val dataSource: DataSource) : ViewModel() {
 	var navigator: N? = null
-
-	override fun onCleared() {
-		compositeDisposable.dispose()
-		super.onCleared()
-	}
 }

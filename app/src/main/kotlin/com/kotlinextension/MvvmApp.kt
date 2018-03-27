@@ -1,27 +1,25 @@
 package com.kotlinextension
 
-import com.kotlinextension.di.applyAutoInjector
-import com.kotlinextension.di.component.DaggerAppComponent
-import com.kotlinextension.di.lifecycle.AppLifecycleCallbacks
-import dagger.android.support.DaggerApplication
+import android.app.Activity
+import android.app.Application
+import com.kotlinextension.di.AppInjector
+import com.kotlinextension.di.component.AppComponent
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasActivityInjector
 import javax.inject.Inject
 
-class MvvmApp : DaggerApplication() {
-	@Inject
-	lateinit var appLifecycleCallbacks: AppLifecycleCallbacks
+class MvvmApp : Application(), HasActivityInjector {
+    lateinit var activityInjector: DispatchingAndroidInjector<Activity>
+        @Inject set
 
-	override fun applicationInjector() = DaggerAppComponent.builder()
-		.application(this)
-		.build()
+    lateinit var appComponent: AppComponent
 
-	override fun onCreate() {
+    override fun onCreate() {
 		super.onCreate()
-		applyAutoInjector()
-		appLifecycleCallbacks.onCreate(this)
+        AppInjector.initInjector(this)
 	}
 
-	override fun onTerminate() {
-		appLifecycleCallbacks.onTerminate(this)
-		super.onTerminate()
-	}
+    override fun activityInjector(): DispatchingAndroidInjector<Activity> {
+        return activityInjector
+    }
 }
