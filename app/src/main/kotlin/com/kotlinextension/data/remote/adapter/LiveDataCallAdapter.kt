@@ -1,7 +1,7 @@
 package com.kotlinextension.data.remote.adapter
 
 import android.arch.lifecycle.LiveData
-import com.kotlinextension.networking.model.custom.ApiResponse
+import com.kotlinextension.data.remote.model.custom.ApiResponse
 import java.lang.reflect.Type
 import java.util.concurrent.atomic.AtomicBoolean
 import retrofit2.Call

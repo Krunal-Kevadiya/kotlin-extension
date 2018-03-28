@@ -12,4 +12,4 @@ data class User(
     val id: String = UUID.randomUUID().toString(),
 
     @ColumnInfo(name = "name")
-    val name: String)
+    val userName: String)

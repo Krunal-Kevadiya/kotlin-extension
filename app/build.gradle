@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android' // Enables android kotlin support
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt' // Enables anotation processor support
-apply from: '../settings/codequality/quality.gradle'
+//apply from: '../settings/codequality/quality.gradle'
 
 kapt {
   generateStubs = true
@@ -10,7 +10,6 @@ kapt {
 
 android {
   compileSdkVersion build_versions.target_sdk
-  buildToolsVersion build_versions.build_tools
 
   defaultConfig {
     applicationId readApplicationId()
@@ -114,7 +113,7 @@ android {
 
   buildTypes {
     buildTypes.each {
-      it.buildConfigField "String", 'BASEURL_API', "\"https://api.github.com/\""
+      it.buildConfigField "String", 'BASEURL_API', "\"https://my-json-server.typicode.com/po10cio/MockServer/\""
     }
     release {
       minifyEnabled false
@@ -213,7 +212,7 @@ dependencies {
   implementation deps.google.maps
   implementation deps.google.location
 
-  kapt deps.other.binding
+  //kapt deps.other.binding
 
   implementation deps.retrofit.lib
   implementation deps.retrofit.adapter_rx

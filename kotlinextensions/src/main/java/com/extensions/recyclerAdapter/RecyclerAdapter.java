@@ -362,16 +362,16 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         if(diffCallback == null) {
             if(position.length <= 0) {
                 if (isLoadMoreReverse) {
-                    itemList.add(0, list);
+                    itemList.addAll(0, list);
                     isEmptyViewVisible = itemList.size() <= 0;
                     notifyItemRangeInserted(0, list.size());
                 } else {
-                    itemList.add(list);
+                    itemList.addAll(list);
                     isEmptyViewVisible = itemList.size() <= 0;
                     notifyItemRangeInserted(itemList.size() - 1, list.size());
                 }
             } else {
-                itemList.add(position[0], list);
+                itemList.addAll(position[0], list);
                 isEmptyViewVisible = itemList.size() <= 0;
                 notifyItemRangeInserted(position[0], list.size());
             }
@@ -379,15 +379,15 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
             List<Object> listTemp = new ArrayList<>();
             if(position.length <= 0) {
                 if (isLoadMoreReverse) {
-                    listTemp.add(0, list);
+                    listTemp.addAll(0, list);
                     listTemp.addAll(itemList);
                 } else {
                     listTemp.addAll(itemList);
-                    listTemp.add(list);
+                    listTemp.addAll(list);
                 }
             } else {
                 listTemp.addAll(itemList);
-                listTemp.add(position[0], list);
+                listTemp.addAll(position[0], list);
             }
             DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new RecyclerDiffUtil(itemList, listTemp, diffCallback));
             itemList.clear();
@@ -406,8 +406,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
                 notifyItemRemoved(index);
             }
         } else {
-            List<Object> list = new ArrayList<>();
-            list.addAll(itemList);
+            List<Object> list = new ArrayList<>(itemList);
 
             int index = list.indexOf(item);
             if (index != -1) {
