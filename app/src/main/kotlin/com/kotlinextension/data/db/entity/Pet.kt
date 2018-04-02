@@ -9,7 +9,7 @@ import android.arch.persistence.room.*
         childColumns = arrayOf("user_id"),
         onDelete = ForeignKey.CASCADE))],
     indices = [(Index("user_id"))])
-data class Pet(
+data class Location(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long,
@@ -18,4 +18,9 @@ data class Pet(
     val name: String,
 
     @ColumnInfo(name = "user_id")
-    val userId: String)
+    val userId: String,
+
+    @SerializedName("street") val street: String,
+    @SerializedName("city") val city: String,
+    @SerializedName("state") val state: String,
+    @SerializedName("postcode") val postcode: String)

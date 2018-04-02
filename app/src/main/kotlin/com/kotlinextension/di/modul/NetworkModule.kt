@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.kotlinextension.BuildConfig
 import com.kotlinextension.data.remote.ApiService
+import com.kotlinextension.data.remote.adapter.FlattenTypeAdapterFactory
 import com.kotlinextension.data.remote.adapter.LiveDataCallAdapterFactory
 import dagger.Module
 import dagger.Provides
@@ -24,7 +25,8 @@ class NetworkModule {
 	@Singleton
 	@Provides
 	internal fun providesGson(): Gson {
-		return GsonBuilder().create()
+		return GsonBuilder()
+            .registerTypeAdapterFactory(FlattenTypeAdapterFactory()).create()
 	}
 
 	@Singleton
