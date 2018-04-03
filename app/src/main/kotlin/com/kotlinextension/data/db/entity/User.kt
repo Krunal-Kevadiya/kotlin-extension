@@ -2,57 +2,59 @@ package com.kotlinextension.data.db.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import java.util.*
+import com.kotlinextension.data.db.DatabaseAnnotation
+import com.kotlinextension.data.remote.adapter.Flatten
 
-@Entity(tableName = "users")
+@Entity(tableName = DatabaseAnnotation.TABLE_USER)
 data class User(
-    @PrimaryKey
-    @ColumnInfo(name = "id")
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = DatabaseAnnotation.ID)
     val id: Long,
 
     @Flatten("login::username")
-    @ColumnInfo(name = "name")
+    @ColumnInfo(name = DatabaseAnnotation.USER_NAME)
     val userName: String,
 
     @SerializedName("gender")
-    @ColumnInfo(name = "gender")
+    @ColumnInfo(name = DatabaseAnnotation.GENDER)
     val gender: String,
 
     @SerializedName("location")
-    @ColumnInfo(name = "name")
+    @Ignore
     val location: Location,
 
     @SerializedName("email")
-    @ColumnInfo(name = "email")
+    @ColumnInfo(name = DatabaseAnnotation.EMAIL)
     val email: String,
 
     @Flatten("login::password")
-    @ColumnInfo(name = "password")
+    @ColumnInfo(name = DatabaseAnnotation.PASSWORD)
     val password: String,
 
     @SerializedName("dob")
-    @ColumnInfo(name = "dob")
+    @ColumnInfo(name = DatabaseAnnotation.DOB)
     val dob: String,
 
     @SerializedName("registered")
-    @ColumnInfo(name = "registered")
+    @ColumnInfo(name = DatabaseAnnotation.REGISTERED)
     val registered: String,
 
     @SerializedName("phone")
-    @ColumnInfo(name = "phone")
+    @ColumnInfo(name = DatabaseAnnotation.PHONE)
     val phone: String,
 
     @SerializedName("cell")
-    @ColumnInfo(name = "cell")
+    @ColumnInfo(name = DatabaseAnnotation.CELL)
     val cell: String,
 
     @Flatten("picture::medium")
-    @ColumnInfo(name = "picture")
+    @ColumnInfo(name = DatabaseAnnotation.PICTURE)
     val picture: String,
 
     @SerializedName("nat")
-    @ColumnInfo(name = "nat")
+    @ColumnInfo(name = DatabaseAnnotation.NAT)
     val nat: String
 )
