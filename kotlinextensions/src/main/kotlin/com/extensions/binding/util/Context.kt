@@ -13,6 +13,7 @@ import android.support.annotation.DimenRes
 import android.support.annotation.DrawableRes
 import android.support.annotation.IntegerRes
 import android.support.annotation.StringRes
+import android.support.v4.content.ContextCompat
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.extensions.binding.DimensionType
@@ -29,7 +30,7 @@ fun Context.safeString(@StringRes stringRes :Int) :String? {
  */
 fun Context.getThemedDrawable(@DrawableRes drawableRes :Int) :Drawable =
     if(Build.VERSION.SDK_INT >= 23) getDrawable(drawableRes)
-    else resources.getDrawable(drawableRes)
+    else ContextCompat.getDrawable(this, drawableRes)!!
 
 fun Context.getSafeThemedDrawable(@DrawableRes drawableRes :Int) :Drawable? {
     return safe {getThemedDrawable(drawableRes)}

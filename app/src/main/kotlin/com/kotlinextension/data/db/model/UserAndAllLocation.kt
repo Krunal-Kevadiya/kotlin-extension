@@ -10,5 +10,5 @@ class UserAndAllLocation {
     var user: User? = null
 
     @Relation(parentColumn = "id", entityColumn = "user_id")
-    var pets: List<Location>? = null
+    var locations: List<Location>? = null
 }

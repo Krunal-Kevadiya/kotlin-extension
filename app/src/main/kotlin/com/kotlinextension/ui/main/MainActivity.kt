@@ -2,6 +2,7 @@ package com.kotlinextension.ui.main
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.util.Log
 import com.extensions.collections.isNotNullOrEmpty
 import com.extensions.dialogs.toast
 import com.extensions.network.hasConnection
@@ -13,6 +14,8 @@ import com.kotlinextension.data.db.entity.User
 import com.kotlinextension.databinding.ActivityMainBinding
 import com.kotlinextension.databinding.RecyclerItemRepoBinding
 import com.kotlinextension.ui.map.MapsActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), MainNavigator {
 	private lateinit var adapter: RecyclerAdapter
@@ -40,20 +43,21 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), MainNav
             .attachTo(mViewDataBinding.recyclerRepo)
 		mViewDataBinding.recyclerRepo.adapter = adapter
 
-		if (hasConnection) {
-			showProgressDialog()
-			mViewModel.loadUsers()
-				.observe(this, Observer {
-					it?.let { it1 -> setData(it1) }
-				})
-		} else
-            toast(R.string.disable_network)
+        mViewModel.getAllUsers()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({items ->
+                //this.taskList = items
+                Log.e("Adapter", "" + items.size)
+            }, {throwable ->
+                Log.e("Adapter", "" + throwable.localizedMessage)
+            })
 	}
 
-	private fun setData(response: List<User>) {
+	private fun setData(response: MutableList<User>) {
 		hideProgressDialog()
-        if(response.isNotNullOrEmpty())
-            adapter.addAll(response)
+        //if(response.isNotNullOrEmpty())
+            //adapter.addAll(response as List<Any>?)
 	}
 
 	override fun openMapActivity() {

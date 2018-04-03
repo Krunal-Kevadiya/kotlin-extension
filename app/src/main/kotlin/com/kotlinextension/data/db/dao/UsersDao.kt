@@ -9,13 +9,22 @@ import io.reactivex.Flowable
 interface UsersDao {
 
     @Query("SELECT * from Users WHERE id = :id")
-    fun getUserById(id: String): Flowable<User>
+    fun getUserById(id: Long): Flowable<User>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUser(user: User)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertUser(vararg user: User)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updateUser(user: User)
+
     @Query("DELETE FROM Users")
     fun deleteAllUsers()
+
+    @Query("DELETE FROM Users WHERE id = :id")
+    fun deleteUser(id: Long)
 
     @Delete
     fun deleteUser(user: User)
@@ -24,8 +33,8 @@ interface UsersDao {
     fun deleteUsers(vararg user: User)
 
     @Query("SELECT * FROM Users")
-    fun getAllUsers(): Flowable<List<User>>
+    fun getAllUsers(): Flowable<MutableList<User>>
 
     @Insert
-    fun insertUserAndPets(user: User, pets: List<Location>)
+    fun insertUserAndLocations(user: User, locations: MutableList<Location>)
 }

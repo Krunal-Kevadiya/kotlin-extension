@@ -88,11 +88,11 @@ class FasterAnimationsContainer(imageView :ImageView, private val intTimeInterva
      * @param resIds   resource id of drawable
      * @param interval milliseconds
      */
-    fun addAllFrames(context :Context, resIds :IntArray, interval :Int, size :Int) {
-        if(size == 0)
-            mSize = size
+    fun addAllFrames(resIds :IntArray, interval :Int, size :Int) {
+        mSize = if(size == 0)
+            size
         else
-            mSize = resIds.size - 1
+            resIds.size - 1
         for(resId in resIds.indices) {
             mAnimationFrames!!.put(resId, AnimationFrame(resIds[resId], interval))
         }
@@ -138,7 +138,7 @@ class FasterAnimationsContainer(imageView :ImageView, private val intTimeInterva
      * @param resId    resource id of drawable
      * @param interval milliseconds
      */
-    fun replaceFrame(context :Context, index :Int, resId :Int, interval :Int) {
+    fun replaceFrame(index :Int, resId :Int, interval :Int) {
         val key = mAnimationFrames!!.keyAt(index)
         mAnimationFrames!!.append(key, AnimationFrame(resId, interval))
     }

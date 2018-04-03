@@ -5,11 +5,11 @@ import com.google.gson.GsonBuilder
 import com.kotlinextension.BuildConfig
 import com.kotlinextension.data.remote.ApiService
 import com.kotlinextension.data.remote.adapter.FlattenTypeAdapterFactory
-import com.kotlinextension.data.remote.adapter.LiveDataCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
@@ -42,7 +42,7 @@ class NetworkModule {
 				.baseUrl(baseUrl)
 				.client(okHttpClient)
 				.addConverterFactory(gsonConverterFactory)
-				.addCallAdapterFactory(LiveDataCallAdapterFactory.create()).build()
+				.addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build()
 	}
 
 	@Singleton

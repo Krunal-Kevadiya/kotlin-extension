@@ -14,7 +14,7 @@ interface LocationsDao {
     fun deleteLocations(vararg pets: Location)
 
     @Query("SELECT * FROM Locations")
-    fun loadAllLocations(): Flowable<List<Location>>
+    fun loadAllLocations(): Flowable<MutableList<Location>>
 
     @Query("SELECT * FROM Locations WHERE id = :id")
     fun loadLocationById(id: Int): Flowable<Location>

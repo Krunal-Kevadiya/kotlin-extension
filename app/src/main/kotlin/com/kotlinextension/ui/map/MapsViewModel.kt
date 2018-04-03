@@ -2,7 +2,6 @@ package com.kotlinextension.ui.map
 
 import android.content.Context
 import com.kotlinextension.base.BaseViewModel
-import com.kotlinextension.data.DataSource
 import com.kotlinextension.utils.CurrentLocationLiveData
 import javax.inject.Inject
 

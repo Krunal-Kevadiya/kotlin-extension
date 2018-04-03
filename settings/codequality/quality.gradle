@@ -21,7 +21,7 @@ configurations {
 }
 
 dependencies {
-  checkstyle 'com.puppycrawl.tools:checkstyle:6.19'
+  checkstyle 'com.puppycrawl.tools:checkstyle:8.8'
   ktlint "com.github.shyiko:ktlint:0.20.0"
   detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0.RC6-4'
 }
@@ -43,8 +43,7 @@ gradle.taskGraph.afterTask { Task task, TaskState state ->
 //Check Style
 task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code style checks') {
   showViolations = true
-  configFile file("$qualityConfigDir/checkstyle/checkstyle-config.xml")
-  //configProperties.checkstyleSuppressionFilterPath file("$qualityConfigDir/checkstyle/suppressions.xml")
+  configFile file("$qualityConfigDir/checkstyle/checkstyle.xml")
   source  'src'
   include '**/*.java'
   exclude '**/model/**'
