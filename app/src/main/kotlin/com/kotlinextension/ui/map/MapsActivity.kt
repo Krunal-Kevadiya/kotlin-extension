@@ -92,9 +92,9 @@ class MapsActivity : BaseActivity<ActivityMapsBinding, MapsViewModel>(), MapsNav
 		mViewModel.initLocation(this)
 		mViewModel.location.observe(this, Observer {
 			mCountUpdated++
-			Log.e("MapsActivity", "Location Update - $mCountUpdated")
+			Log.e("MapsActivity", "Locations Update - $mCountUpdated")
 			it?.let {
-				mMap.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).title("Current location - $mCountUpdated time update."))
+				mMap.addMarker(MarkerOptions().position(LatLng(it.latitude, it.longitude)).title("Current locations - $mCountUpdated time update."))
 				mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
 			}
 		})
@@ -104,11 +104,11 @@ class MapsActivity : BaseActivity<ActivityMapsBinding, MapsViewModel>(), MapsNav
 				shortToast(R.string.disable_location)
 			}
 
-			override fun onSuccess(location :Location) {
+			override fun onSuccess(locations :Locations) {
 				mCountUpdated++
-				Log.e("MapsActivity", "Location Update - $mCountUpdated")
-				val sydney = LatLng(location.latitude, location.longitude)
-				mMap.addMarker(MarkerOptions().position(sydney).title("Current location - $mCountUpdated time update."))
+				Log.e("MapsActivity", "Locations Update - $mCountUpdated")
+				val sydney = LatLng(locations.latitude, locations.longitude)
+				mMap.addMarker(MarkerOptions().position(sydney).title("Current locations - $mCountUpdated time update."))
 				mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 			}
 

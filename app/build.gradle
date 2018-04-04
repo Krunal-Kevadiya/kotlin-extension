@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android' // Enables android kotlin support
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt' // Enables anotation processor support
-apply from: '../settings/codequality/quality.gradle'
+//apply from: '../settings/codequality/quality.gradle'
 
-kapt {
+/*kapt {
   generateStubs = true
-}
+}*/
 
 android {
   compileSdkVersion build_versions.target_sdk
@@ -35,21 +35,8 @@ android {
     }
   }
 
-  androidExtensions {
-    experimental = true
-  }
-
   dataBinding {
     enabled = true
-  }
-
-  lintOptions {
-    abortOnError false
-  }
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   packagingOptions {
@@ -132,7 +119,6 @@ android {
     }
   }
 
-
   android.applicationVariants.all { variant ->
     variant.outputs.all { output ->
       def outputFile = output.outputFile
@@ -201,6 +187,12 @@ android {
   }
 }
 
+kotlin {
+  experimental {
+    coroutines "enable"
+  }
+}
+
 dependencies {
   implementation fileTree(include: ['*.jar'], dir: 'libs')
   // Support libraries
@@ -212,7 +204,7 @@ dependencies {
   implementation deps.google.maps
   implementation deps.google.location
 
-  //kapt deps.other.binding
+  kapt deps.other.binding
 
   implementation deps.retrofit.lib
   implementation deps.retrofit.adapter_rx2
@@ -224,25 +216,23 @@ dependencies {
   implementation deps.lifecycle.extensions
   kapt deps.lifecycle.compiler
 
-  implementation deps.room.lib
+  compile deps.room.lib
   implementation deps.room.rxjava2
   kapt deps.room.compiler
+
+  kapt deps.kotlin.stdlib7
+  kapt deps.kotlin.reflect
 
   // dependency injection
   implementation deps.dagger.lib
   kapt deps.dagger.compiler
-  kapt deps.dagger.android_support_compiler
   implementation deps.dagger.android
+  kapt deps.dagger.android_support_compiler
   implementation deps.dagger.android_support
 
   // reactive
-  implementation deps.javaxAndRx.rxkotlin
-  implementation deps.javaxAndRx.android
   implementation deps.javaxAndRx.android2
-  implementation deps.javaxAndRx.java
   implementation deps.javaxAndRx.java2
-
-  implementation deps.javaxAndRx.inject
   implementation deps.picasso.lib
 
   implementation project(':kotlinextensions')

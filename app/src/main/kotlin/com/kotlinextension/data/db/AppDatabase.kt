@@ -7,10 +7,10 @@ import android.content.Context
 import com.kotlinextension.data.db.dao.LocationsDao
 import com.kotlinextension.data.db.dao.UserAndAllLocationsDao
 import com.kotlinextension.data.db.dao.UsersDao
-import com.kotlinextension.data.db.entity.Location
+import com.kotlinextension.data.db.entity.Locations
 import com.kotlinextension.data.db.entity.User
 
-@Database(entities = [(User::class), (Location::class)], version = DatabaseAnnotation.DATABASE_VERSION)
+@Database(entities = [(User::class), (Locations::class)], version = DatabaseAnnotation.DATABASE_VERSION, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun usersDao(): UsersDao

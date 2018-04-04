@@ -37,13 +37,13 @@ class CurrentLocationLiveData(var context: Context, var isFusedLocationApi: Bool
 			if (mBound)
 				locationService.setLocationCallback(object: Locations.LocationCallback{
 					override fun locationDisabled() {
-                        Log.e(CurrentLocationLiveData::class.java.simpleName, "Location Disable")
+                        Log.e(CurrentLocationLiveData::class.java.simpleName, "Locations Disable")
                     }
 					override fun onSuccess(location :Location) {
 						value = location
 					}
 					override fun onFailure(e :Exception) {
-                        Log.e(CurrentLocationLiveData::class.java.simpleName, "Location Failure $e")
+                        Log.e(CurrentLocationLiveData::class.java.simpleName, "Locations Failure $e")
                     }
 				})
 		}

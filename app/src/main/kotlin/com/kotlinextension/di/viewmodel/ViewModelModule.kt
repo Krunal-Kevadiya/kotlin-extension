@@ -26,5 +26,4 @@ abstract class ViewModelModule {
 	@IntoMap
 	@ViewModelKey(MapsViewModel::class)
 	abstract fun bindMapsViewModel(viewModel: MapsViewModel): ViewModel
-
 }

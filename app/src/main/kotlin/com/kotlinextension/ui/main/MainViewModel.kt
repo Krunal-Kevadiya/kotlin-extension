@@ -6,9 +6,9 @@ import com.kotlinextension.data.db.entity.User
 import io.reactivex.Flowable
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(dataSource: DatabaseSource<User>) : BaseViewModel<MainNavigator>(dataSource) {
+class MainViewModel @Inject constructor(): BaseViewModel<MainNavigator>() {
 
     fun getAllUsers() :Flowable<MutableList<User>> {
-        return dataSource.getAll()
+        return getAllUsers()//dataSource.getAll()
     }
 }

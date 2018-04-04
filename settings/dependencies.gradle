@@ -79,7 +79,8 @@ deps.kotlin = [
   stdlib8   : "org.jetbrains.kotlin:kotlin-stdlib-jre8:$versions.kotlin",
   extensions: "org.jetbrains.kotlin:kotlin-android-extensions:$versions.kotlin",
   testing   : "org.jetbrains.kotlin:kotlin-test-junit:$versions.kotlin",
-  plugin    : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+  plugin    : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin",
+  reflect   : "org.jetbrains.kotlin:kotlin-reflect:$versions.kotlin"
 ]
 deps.google = [
   services : "com.google.gms:google-services:3.1.1",
@@ -126,8 +127,8 @@ deps.other = [
   facebook        : "com.facebook.android:facebook-android-sdk:4.28.0",
   live_adapter_rx2: 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0',
 
-  plugin          : "com.android.tools.build:gradle:3.1.0",
-  binding         : "com.android.databinding:compiler:2.3.3",
+  plugin          : "com.android.tools.build:gradle:3.0.1",
+  binding         : "com.android.databinding:compiler:3.0.1",
 
   gson            : "com.google.code.gson:gson:2.8.2",
   sdp             : "com.intuit.sdp:sdp-android:$versions.intuit",

@@ -1,7 +1,7 @@
 package com.kotlinextension.data.db.dao
 
 import android.arch.persistence.room.*
-import com.kotlinextension.data.db.entity.Location
+import com.kotlinextension.data.db.entity.Locations
 import com.kotlinextension.data.db.entity.User
 import io.reactivex.Flowable
 
@@ -36,5 +36,5 @@ interface UsersDao {
     fun getAllUsers(): Flowable<MutableList<User>>
 
     @Insert
-    fun insertUserAndLocations(user: User, locations: MutableList<Location>)
+    fun insertUserAndLocations(user: User, locations: MutableList<Locations>)
 }

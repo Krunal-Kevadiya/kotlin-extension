@@ -1,11 +1,7 @@
 package com.kotlinextension.ui.main
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.util.Log
-import com.extensions.collections.isNotNullOrEmpty
-import com.extensions.dialogs.toast
-import com.extensions.network.hasConnection
 import com.extensions.recyclerAdapter.RecyclerAdapter
 import com.kotlinextension.BR
 import com.kotlinextension.R

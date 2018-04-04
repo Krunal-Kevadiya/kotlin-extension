@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android' // Enables android kotlin support
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt' // Enables anotation processor support
-apply from: '../settings/codequality/quality.gradle'
+//apply from: '../settings/codequality/quality.gradle'
 
-kapt {
+/*kapt {
     generateStubs = true
-}
+}*/
 
 android {
     compileSdkVersion build_versions.target_sdk
@@ -88,7 +88,7 @@ dependencies {
     implementation deps.kotlin.stdlib
 
     // Data Binding
-    //kapt deps.other.binding
+    kapt deps.other.binding
 
     // Architecture components
     implementation deps.lifecycle.lib
@@ -111,4 +111,4 @@ ext {
     PUBLISH_VERSION = '1.0.0'
 }
 
-apply from: '../gradle/android-release-aar.gradle'
+//apply from: '../gradle/android-release-aar.gradle'
