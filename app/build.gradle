@@ -39,6 +39,15 @@ android {
     enabled = true
   }
 
+  androidExtensions {
+    experimental = true
+  }
+
+  /*compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }*/
+
   packagingOptions {
     exclude 'META-INF/rxjava.properties'
     exclude 'META-INF/DEPENDENCIES.txt'
@@ -187,12 +196,6 @@ android {
   }
 }
 
-kotlin {
-  experimental {
-    coroutines "enable"
-  }
-}
-
 dependencies {
   implementation fileTree(include: ['*.jar'], dir: 'libs')
   // Support libraries
@@ -220,7 +223,7 @@ dependencies {
   implementation deps.room.rxjava2
   kapt deps.room.compiler
 
-  kapt deps.kotlin.stdlib7
+  kapt deps.kotlin.stdlib8
   kapt deps.kotlin.reflect
 
   // dependency injection

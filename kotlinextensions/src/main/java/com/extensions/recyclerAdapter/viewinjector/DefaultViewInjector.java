@@ -24,6 +24,7 @@ public class DefaultViewInjector implements IViewInjector<DefaultViewInjector> {
         this.viewHolder = viewHolder;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public final <T extends View> T findViewById(int id) {
         if(viewHolder instanceof RecyclerViewHolder)
@@ -148,7 +149,7 @@ public class DefaultViewInjector implements IViewInjector<DefaultViewInjector> {
     @SuppressWarnings("unchecked")
     @Override
     public <V extends View> DefaultViewInjector with(int id, Action<V> action) {
-        action.action(findViewById(id));
+        action.action((V) findViewById(id));
         return this;
     }
 

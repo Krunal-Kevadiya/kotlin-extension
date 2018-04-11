@@ -67,43 +67,55 @@ public class RecyclerLoadMoreView extends FrameLayout {
         addView(noMoreView);
     }
 
-    public void visibleLoadingView(boolean isLoadMoreReverse) {
-        post(() -> {
-            if(isLoadMoreReverse)
-                setVisibility(VISIBLE);
-            loadingView.setVisibility(VISIBLE);
-            noMoreView.setVisibility(GONE);
-            errorView.setVisibility(GONE);
+    public void visibleLoadingView(final boolean isLoadMoreReverse) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if(isLoadMoreReverse)
+                    setVisibility(VISIBLE);
+                loadingView.setVisibility(VISIBLE);
+                noMoreView.setVisibility(GONE);
+                errorView.setVisibility(GONE);
+            }
         });
     }
 
-    public void visibleNoMoreView(boolean isLoadMoreReverse) {
-        post(() -> {
-            if(isLoadMoreReverse)
-                setVisibility(VISIBLE);
-            loadingView.setVisibility(GONE);
-            noMoreView.setVisibility(VISIBLE);
-            errorView.setVisibility(GONE);
+    public void visibleNoMoreView(final boolean isLoadMoreReverse) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if(isLoadMoreReverse)
+                    setVisibility(VISIBLE);
+                loadingView.setVisibility(GONE);
+                noMoreView.setVisibility(VISIBLE);
+                errorView.setVisibility(GONE);
+            }
         });
     }
 
-    public void visibleErrorView(boolean isLoadMoreReverse) {
-        post(() -> {
-            if(isLoadMoreReverse)
-                setVisibility(VISIBLE);
-            loadingView.setVisibility(GONE);
-            noMoreView.setVisibility(GONE);
-            errorView.setVisibility(VISIBLE);
+    public void visibleErrorView(final boolean isLoadMoreReverse) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if(isLoadMoreReverse)
+                    setVisibility(VISIBLE);
+                loadingView.setVisibility(GONE);
+                noMoreView.setVisibility(GONE);
+                errorView.setVisibility(VISIBLE);
+            }
         });
     }
 
-    public void invisibleView(boolean isLoadMoreReverse) {
-        post(() -> {
-            loadingView.setVisibility(GONE);
-            noMoreView.setVisibility(GONE);
-            errorView.setVisibility(GONE);
-            if(isLoadMoreReverse)
-                setVisibility(GONE);
+    public void invisibleView(final boolean isLoadMoreReverse) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                loadingView.setVisibility(GONE);
+                noMoreView.setVisibility(GONE);
+                errorView.setVisibility(GONE);
+                if(isLoadMoreReverse)
+                    setVisibility(GONE);
+            }
         });
     }
 }

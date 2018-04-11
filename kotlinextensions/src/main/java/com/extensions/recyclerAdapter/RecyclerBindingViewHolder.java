@@ -10,8 +10,9 @@ public abstract class RecyclerBindingViewHolder<D, V extends ViewDataBinding> ex
     private V viewDataBinding;
     private int brVariable = -1;
 
+    @SuppressWarnings("unchecked")
     RecyclerBindingViewHolder(ViewGroup parent, int itemLayoutRes, int brVariable) {
-        this(DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), itemLayoutRes, parent, false), brVariable);
+        this((V) DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), itemLayoutRes, parent, false), brVariable);
     }
 
     public RecyclerBindingViewHolder(V itemView, int variable) {

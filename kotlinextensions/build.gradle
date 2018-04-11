@@ -30,18 +30,14 @@ android {
         enabled = true
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     androidExtensions {
         experimental = true
     }
 
-    compileOptions {
+    /*compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
+    }*/
 
     packagingOptions {
         exclude 'META-INF/rxjava.properties'
@@ -85,7 +81,7 @@ dependencies {
     implementation deps.support.card_view
 
     // Kotlin
-    implementation deps.kotlin.stdlib
+    kapt deps.kotlin.stdlib8
 
     // Data Binding
     kapt deps.other.binding

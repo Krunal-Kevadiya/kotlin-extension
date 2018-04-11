@@ -1,7 +1,9 @@
 package com.extensions.recyclerAdapter.ex.loadmore;
 
 import android.content.Context;
+import android.os.Handler.Callback;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
@@ -43,13 +45,16 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
         handler = new Handler();
         HandlerThread eventHandlerThread = new HandlerThread(RecyclerMoreLoader.class.getSimpleName() + ".Thread");
         eventHandlerThread.start();
-        eventHandler = new android.os.Handler(eventHandlerThread.getLooper(), msg -> {
-            switch (msg.what) {
-                case WHAT_LOAD_MORE:
-                    onLoadMore(handler);
-                    return true;
-                default:
-                    return false;
+        eventHandler = new android.os.Handler(eventHandlerThread.getLooper(), new Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                switch (msg.what) {
+                    case WHAT_LOAD_MORE:
+                        onLoadMore(handler);
+                        return true;
+                    default:
+                        return false;
+                }
             }
         });
     }

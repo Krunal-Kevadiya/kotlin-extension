@@ -48,10 +48,20 @@ public class RecyclerEmptyView extends FrameLayout {
     }
 
     public void visibleEmptyView() {
-        post(() -> emptyView.setVisibility(VISIBLE));
+        post(new Runnable() {
+            @Override
+            public void run() {
+                emptyView.setVisibility(VISIBLE);
+            }
+        });
     }
 
     public void invisibleEmptyView() {
-        post(() -> emptyView.setVisibility(GONE));
+        post(new Runnable() {
+            @Override
+            public void run() {
+                emptyView.setVisibility(GONE);
+            }
+        });
     }
 }

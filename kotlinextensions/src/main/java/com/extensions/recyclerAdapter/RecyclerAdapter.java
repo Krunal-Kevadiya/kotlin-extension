@@ -166,10 +166,15 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
     }
 
     public RecyclerAdapter registerBindingDefault(final int layoutRes, final int brVariable, final RecyclerBindingInjector recyclerBindingInjector) {
-        defaultCreator = (IBindingViewHolderCreator) parent -> new RecyclerTypeBindingViewHolder(parent, layoutRes, brVariable) {
+        defaultCreator = new IBindingViewHolderCreator() {
             @Override
-            protected void onBind(int position, Object item, ViewDataBinding binding) {
-                recyclerBindingInjector.onInject(position, item, binding);
+            public RecyclerTypeBindingViewHolder create(ViewGroup parent) {
+                return new RecyclerTypeBindingViewHolder(parent, layoutRes, brVariable) {
+                    @Override
+                    protected void onBind(int position, Object item, ViewDataBinding binding) {
+                        recyclerBindingInjector.onInject(position, item, binding);
+                    }
+                };
             }
         };
         return this;
@@ -180,20 +185,30 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         if (type == null) {
             throw new IllegalArgumentException();
         }
-        creators.put(type, (IBindingViewHolderCreator<T, V>) parent -> new RecyclerTypeBindingViewHolder<T, V>(parent, layoutRes, brVariable) {
+        creators.put(type, new IBindingViewHolderCreator<T, V>() {
             @Override
-            protected void onBind(int position, T item, V binding) {
-                recyclerBindingInjector.onInject(position, item, binding);
+            public RecyclerTypeBindingViewHolder<T, V> create(ViewGroup parent) {
+                return new RecyclerTypeBindingViewHolder<T, V>(parent, layoutRes, brVariable) {
+                    @Override
+                    protected void onBind(int position, T item, V binding) {
+                        recyclerBindingInjector.onInject(position, item, binding);
+                    }
+                };
             }
         });
         return this;
     }
 
     public RecyclerAdapter registerDefault(final int layoutRes, final RecyclerInjector recyclerInjector) {
-        defaultCreator = (IViewHolderCreator) parent -> new RecyclerTypeViewHolder(parent, layoutRes) {
+        defaultCreator = new IViewHolderCreator() {
             @Override
-            protected void onBind(int position, Object item, IViewInjector injector) {
-                recyclerInjector.onInject(position, item, injector);
+            public RecyclerTypeViewHolder create(ViewGroup parent) {
+                return new RecyclerTypeViewHolder(parent, layoutRes) {
+                    @Override
+                    protected void onBind(int position, Object item, IViewInjector injector) {
+                        recyclerInjector.onInject(position, item, injector);
+                    }
+                };
             }
         };
         return this;
@@ -204,10 +219,15 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         if (type == null) {
             throw new IllegalArgumentException();
         }
-        creators.put(type, (IViewHolderCreator<T>) parent -> new RecyclerTypeViewHolder<T>(parent, layoutRes) {
+        creators.put(type, new IViewHolderCreator<T>() {
             @Override
-            protected void onBind(int position, T item, IViewInjector injector) {
-                recyclerInjector.onInject(position, item, injector);
+            public RecyclerTypeViewHolder<T> create(ViewGroup parent) {
+                return new RecyclerTypeViewHolder<T>(parent, layoutRes) {
+                    @Override
+                    protected void onBind(int position, T item, IViewInjector injector) {
+                        recyclerInjector.onInject(position, item, injector);
+                    }
+                };
             }
         });
         return this;

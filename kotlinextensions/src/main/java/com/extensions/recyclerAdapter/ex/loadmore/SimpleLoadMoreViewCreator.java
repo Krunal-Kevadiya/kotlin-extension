@@ -84,7 +84,12 @@ public class SimpleLoadMoreViewCreator extends LoadMoreViewCreator {
         textView.setGravity(Gravity.CENTER);
         textView.setPadding(padding, padding, padding, padding);
         textView.setText(TextUtils.isEmpty(createErrorHint()) ? "" : createErrorHint());
-        textView.setOnClickListener(v -> reload());
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reload();
+            }
+        });
         textView.setLayoutParams(params);
         return textView;
     }
