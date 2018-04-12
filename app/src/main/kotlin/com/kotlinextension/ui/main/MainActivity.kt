@@ -2,6 +2,7 @@ package com.kotlinextension.ui.main
 
 import android.arch.lifecycle.ViewModelProviders
 import android.util.Log
+import com.extensions.collections.isNotNullOrEmpty
 import com.extensions.recyclerAdapter.RecyclerAdapter
 import com.kotlinextension.BR
 import com.kotlinextension.R
@@ -41,16 +42,17 @@ class MainActivity :BaseActivity<ActivityMainBinding, MainViewModel>(), MainNavi
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({items ->
                 //this.taskList = items
-                Log.e("Adapter", "" + items.size)
+                setData(items)
+                Log.e("Adapter", "success " + items.size)
             }, {throwable ->
-                Log.e("Adapter", "" + throwable.localizedMessage)
+                Log.e("Adapter", "error " + throwable.localizedMessage)
             })
     }
 
     private fun setData(response :MutableList<User>) {
         hideProgressDialog()
         //if(response.isNotNullOrEmpty())
-        //adapter.addAll(response as List<Any>?)
+        //    adapter.addAll(response)
     }
 
     override fun openMapActivity() {
