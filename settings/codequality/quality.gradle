@@ -21,29 +21,29 @@ configurations {
 }
 
 dependencies {
-  checkstyle 'com.puppycrawl.tools:checkstyle:8.8'
+  checkstyle 'com.puppycrawl.tools:checkstyle:8.9'
   ktlint "com.github.shyiko:ktlint:0.20.0"
   detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0.RC6-4'
 }
 
-def isJava = plugins.hasPlugin('java')
 def qualityConfigDir = "$project.rootDir/settings/codequality"
 def reportsDir = "$project.rootDir/settings/reports"
 def sourceDir = "$project.rootDir"
 
+preBuild.dependsOn('checkstyle')
+assemble.dependsOn('lint')
 check.dependsOn 'checkstyle', 'detekt', 'findbugs', 'ktlint', 'ktlintFormat', 'pmd', 'spotlessApply', 'spotlessCheck'
-if (!isJava) {
-  check.dependsOn 'lint'
-}
 
 gradle.taskGraph.afterTask { Task task, TaskState state ->
   println "Task Name => " + task.name
 }
 
-//Check Style
+//CheckStyle
 task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code style checks') {
-  showViolations = true
+  //showViolations = true
   configFile file("$qualityConfigDir/checkstyle/checkstyle.xml")
+  configProperties = ["suppressionFile": project(':').file("$qualityConfigDir/checkstyle/suppressions.xml")]
+
   source  'src'
   include '**/*.java'
   exclude '**/model/**'
@@ -56,15 +56,62 @@ task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code
   reports {
     xml.enabled = true
     html.enabled = true
-    xml.setDestination(new File("$reportsDir/checkstyle/checkstyle.xml"))
-    html.setDestination(new File("$reportsDir/checkstyle/checkstyle.html"))
+    xml.setDestination(project.file("$reportsDir/checkstyle/checkstyle.xml"))
+    html.setDestination(project.file("$reportsDir/checkstyle/checkstyle.html"))
   }
 
   //classpath = files()
   classpath = files("$sourceDir")
 }
 
+//Lint
+android {
+  lintOptions {
+    // Turns off checks for the issue IDs you specify.
+    disable 'NewApi', 'RestrictedApi', 'TypographyFractions','TypographyQuotes',
+      "BinaryOperationInTimber", "LogNotTimber",
+      "StringFormatInTimber", "ThrowableNotAtBeginning",
+      "TimberArgCount", "TimberArgTypes",
+      "TimberExceptionLogging", "TimberTagLength"
+    // Turns on checks for the issue IDs you specify. These checks are in
+    // addition to the default lint checks.
+    enable 'RtlHardcoded','RtlCompat', 'RtlEnabled'
+    // To enable checks for only a subset of issue IDs and ignore all others,
+    // list the issue IDs with the 'check' property instead. This property overrides
+    // any issue IDs you enable or disable using the properties above.
+    check 'InlinedApi', 'HandlerLeak'
+    // If set to true, turns off analysis progress reporting by lint.
+    quiet true
+
+    abortOnError true
+    xmlReport true
+    htmlReport true
+    xmlOutput project.file("$reportsDir/lint/lints.xml")
+    htmlOutput project.file("$reportsDir/lint/lints.html")
+    lintConfig file("${qualityConfigDir}/lint/javalintrc.xml")
+  }
+
+  testOptions.unitTests.all {
+    testLogging {
+      events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+      outputs.upToDateWhen { false }
+      showStandardStreams = true
+    }
+    jvmArgs '-noverify'
+  }
+}
+
 //Find Bugs
+/*FindBugs divided Issues into 9 categories that are:
+1. Dodgy code
+2. Malicious code vulnerability
+3. Bad practice
+4. Correctness
+5. Internationalization
+6. Security
+7. Performance
+8. Multi-threaded correctness
+9. Experimental*/
 task findbugs(type: FindBugs,
   group: 'Verification',
   description: 'Inspect java bytecode for bugs'/*,
@@ -73,67 +120,39 @@ task findbugs(type: FindBugs,
   ignoreFailures = false
   effort = "max"
   reportLevel = "high"
-  excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
-  classes = files("$sourceDir")
-  /*if (isJava) {
-    classes = files("$sourceDir/app/build/classes")
-  } else {
-    classes = files("$sourceDir/app/build/intermediates/classes")
-  }*/
+  excludeFilter = new File("$qualityConfigDir/findbugs/findbugs.xml")
 
-  source 'src'
+  classes = fileTree("${project.rootDir}/app/build/intermediates/classes")
+  classpath = files()
+  source = fileTree('src/main/java/')
+
   include '**/*.java'
   exclude '**/gen/**'
 
   reports {
-    xml.enabled = true
-    html.enabled = false
-    xml.setDestination(new File("$reportsDir/findbugs/findbugs.xml"))
-    html.setDestination(new File("$reportsDir/findbugs/findbugs.html"))
+    xml.enabled = false
+    xml.setDestination(project.file("$reportsDir/findbugs/findbugs.xml"))
+    html.enabled = true
+    html.setDestination(project.file("$reportsDir/findbugs/findbugs.html"))
   }
-
-  classpath = files()
 }
 
 //PMD
 task pmd(type: Pmd, group: 'Verification', description: 'Inspect sourcecode for bugs') {
-  ruleSetFiles = files("$qualityConfigDir/pmd/pmd-ruleset.xml")
+  ruleSetFiles = files("$qualityConfigDir/pmd/ruleset.xml")
   ignoreFailures = false
   ruleSets = []
 
-  source 'src'
+  source fileTree('src/main/java')
   include '**/*.java'
   exclude('**/gen/**', '**/debug/**')
   exclude '**/model/**'
 
   reports {
     xml.enabled = true
+    xml.setDestination(project.file("$reportsDir/pmd/pmd.xml"))
     html.enabled = true
-    xml.setDestination(new File("$reportsDir/pmd/pmd.xml"))
-    html.setDestination(new File("$reportsDir/pmd/pmd.html"))
-  }
-}
-
-if (!isJava) {
-  android {
-    lintOptions {
-      disable 'NewApi' // gradle build will compile code use `Objects.requireNonNull()` for lambda
-      abortOnError true
-      xmlReport true
-      xmlOutput project.file("$reportsDir/lint/lints.xml")
-      htmlReport true
-      htmlOutput project.file("$reportsDir/lint/lints.html")
-      lintConfig file("${qualityConfigDir}/lint/lint.xml")
-    }
-
-    testOptions.unitTests.all {
-      testLogging {
-        events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
-        outputs.upToDateWhen { false }
-        showStandardStreams = true
-      }
-      jvmArgs '-noverify'
-    }
+    html.setDestination(project.file("$reportsDir/pmd/pmd.html"))
   }
 }
 

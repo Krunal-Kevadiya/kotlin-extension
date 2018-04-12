@@ -3,6 +3,7 @@ package com.kotlinextension.di.component
 import com.kotlinextension.MvvmApp
 import com.kotlinextension.di.builder.BuildersModule
 import com.kotlinextension.di.modul.AppModule
+import com.kotlinextension.di.modul.LocalDatabaseModule
 import com.kotlinextension.di.viewmodel.ViewModelModule
 import dagger.BindsInstance
 import dagger.Component
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 	AndroidSupportInjectionModule::class,
 	AppModule::class,
     BuildersModule::class,
-    ViewModelModule::class
+    ViewModelModule::class,
+    LocalDatabaseModule::class
 ])
 interface AppComponent {
 
