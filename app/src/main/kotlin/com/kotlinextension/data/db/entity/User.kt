@@ -2,14 +2,20 @@ package com.kotlinextension.data.db.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
-import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.kotlinextension.data.db.DatabaseAnnotation
 import com.kotlinextension.data.remote.adapter.Flatten
 
-@Entity(tableName = DatabaseAnnotation.TABLE_USER)
+@Entity(tableName = DatabaseAnnotation.TABLE_USER,
+        indices = [(Index(
+            value = arrayOf(DatabaseAnnotation.USER_NAME, DatabaseAnnotation.EMAIL,
+                            DatabaseAnnotation.PASSWORD, DatabaseAnnotation.DOB),
+            name = "idx_user",
+            unique = true
+        ))]
+)
 data class User constructor(@SerializedName("_id") @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseAnnotation.ID) val id: Long,
                             @Flatten("login::username") @ColumnInfo(name = DatabaseAnnotation.USER_NAME) val userName: String,
                             @SerializedName("gender") @ColumnInfo(name = DatabaseAnnotation.GENDER) val gender: String,

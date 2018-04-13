@@ -30,7 +30,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
     private RecyclerMoreLoader moreLoader;
     private RecyclerEmptyLoader emptyViewLoader;
 
-    private List<Object> itemList;
+    private List itemList;
     private List<Type> dataTypes;
     private Map<Type, Object> creators;
     private Object defaultCreator = null;
@@ -42,6 +42,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         itemList = new ArrayList<>();
         dataTypes = new ArrayList<>();
         creators = new HashMap<>();
+        //setHasStableIds(true);
     }
 
     public static RecyclerAdapter create() {
@@ -322,7 +323,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         }
     }
 
-    public List<Object> getItemList() {
+    public List<?> getItemList() {
         return itemList;
     }
 
@@ -357,7 +358,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
                 notifyItemInserted(position[0]);
             }
         } else {
-            List<Object> list = new ArrayList<>();
+            List list = new ArrayList<>();
             if(position.length <= 0) {
                 if (isLoadMoreReverse) {
                     list.add(0, item);
@@ -378,7 +379,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         }
     }
 
-    public void addAll(List<Object> list, int... position) {
+    public void addAll(List list, int... position) {
         if(diffCallback == null) {
             if(position.length <= 0) {
                 if (isLoadMoreReverse) {
@@ -396,7 +397,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
                 notifyItemRangeInserted(position[0], list.size());
             }
         } else {
-            List<Object> listTemp = new ArrayList<>();
+            List listTemp = new ArrayList<>();
             if(position.length <= 0) {
                 if (isLoadMoreReverse) {
                     listTemp.addAll(0, list);
@@ -411,10 +412,15 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
             }
             DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new RecyclerDiffUtil(itemList, listTemp, diffCallback));
             itemList.clear();
-            itemList.addAll(listTemp);
+            itemList.addAll(list);
             isEmptyViewVisible = itemList.size() <= 0;
             diffResult.dispatchUpdatesTo(this);
         }
+    }
+
+    public void addAllWithClear(List list, int... position) {
+        clear();
+        addAll(list, position);
     }
 
     public void remove(Object item) {
@@ -426,7 +432,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
                 notifyItemRemoved(index);
             }
         } else {
-            List<Object> list = new ArrayList<>(itemList);
+            List list = new ArrayList<>(itemList);
 
             int index = list.indexOf(item);
             if (index != -1) {

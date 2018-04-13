@@ -208,6 +208,7 @@ dependencies {
   implementation deps.google.location
 
   kapt deps.other.binding
+  implementation deps.other.sdp
 
   implementation deps.retrofit.lib
   implementation deps.retrofit.adapter_rx2
@@ -219,7 +220,7 @@ dependencies {
   implementation deps.lifecycle.extensions
   kapt deps.lifecycle.compiler
 
-  compile deps.room.lib
+  implementation deps.room.lib
   implementation deps.room.rxjava2
   kapt deps.room.compiler
 
@@ -236,7 +237,13 @@ dependencies {
   // reactive
   implementation deps.javaxAndRx.android2
   implementation deps.javaxAndRx.java2
-  implementation deps.picasso.lib
+
+  //Glide
+  implementation deps.glide.lib
+  kapt deps.glide.compiler
+  implementation deps.glide.annotations
+  implementation deps.glide.downloader
+  implementation deps.glide.transformations
 
   implementation project(':kotlinextensions')
 }

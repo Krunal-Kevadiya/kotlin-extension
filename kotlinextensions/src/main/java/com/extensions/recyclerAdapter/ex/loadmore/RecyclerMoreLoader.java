@@ -122,10 +122,10 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
         public void loadCompleted(List<Object> data) {
             if (data == null) {
                 reset();
-                return;
+                //return;
             }
-            if (loading)
-                recyclerAdapter.addAll(data);
+            //if (loading)
+            //    recyclerAdapter.addAll(data);
         }
 
         public void error() {

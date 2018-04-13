@@ -32,7 +32,7 @@ def sourceDir = "$project.rootDir"
 
 preBuild.dependsOn('checkstyle')
 assemble.dependsOn('lint')
-check.dependsOn 'checkstyle', 'detekt', 'findbugs', 'ktlint', 'ktlintFormat', 'pmd', 'spotlessApply', 'spotlessCheck'
+check.dependsOn 'checkstyle', 'detekt', 'findbugs', 'lint', 'ktlint', 'ktlintFormat', 'pmd', 'spotlessApply', 'spotlessCheck'
 
 gradle.taskGraph.afterTask { Task task, TaskState state ->
   println "Task Name => " + task.name

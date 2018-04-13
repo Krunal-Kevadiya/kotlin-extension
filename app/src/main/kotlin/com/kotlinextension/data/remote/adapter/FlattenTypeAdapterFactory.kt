@@ -122,8 +122,8 @@ open class FlattenTypeAdapterFactory : TypeAdapterFactory {
     }
 
     // Find annotated fields of the class and any superclasses
-    private fun getAnnotatedFields(klass: Class<*>?, annotationClass: Class<out Annotation>): List<Field> {
-        var klass = klass
+    private fun getAnnotatedFields(klas: Class<*>?, annotationClass: Class<out Annotation>): List<Field> {
+        var klass = klas
         val fields = ArrayList<Field>()
         while (klass != null) {
             for (field in klass.declaredFields) {

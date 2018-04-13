@@ -11,7 +11,8 @@ ext.versions = [
   google   : "11.8.0",
   firebase : "11.6.0",
   ok_http  : "3.9.0",
-  glide    : "4.4.0"
+  glide    : "4.4.0",
+  intuit   : "1.0.5"
 ]
 
 def deps = [:]
@@ -104,7 +105,8 @@ deps.glide = [
   lib        : "com.github.bumptech.glide:glide:$versions.glide",
   compiler   : "com.github.bumptech.glide:compiler:$versions.glide",
   annotations: "com.github.bumptech.glide:annotations:$versions.glide",
-  downloader : "com.github.bumptech.glide:okhttp3-integration:$versions.glide"
+  downloader : "com.github.bumptech.glide:okhttp3-integration:$versions.glide",
+  transformations : "jp.wasabeef:glide-transformations:3.1.0"
 ]
 deps.okhttp = [
   lib    : "com.squareup.okhttp3:okhttp:$versions.ok_http",

@@ -71,6 +71,11 @@ class AspectRatioImageView : ImageView {
         this.heightRatio = heightRatio
     }
 
+    fun setWidthHeightRatio(widthRatio: Int, heightRatio: Int) {
+        setWidthRatio(widthRatio)
+        setHeightRatio(heightRatio)
+    }
+
     private fun validateRatio(ratio: Int) {
         if (ratio <= 0) {
             throw IllegalArgumentException("ratio > 0")
