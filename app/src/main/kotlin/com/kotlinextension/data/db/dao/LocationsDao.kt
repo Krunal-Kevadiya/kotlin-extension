@@ -8,10 +8,10 @@ import io.reactivex.Flowable
 interface LocationsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertLocations(vararg pets: Locations)
+    fun insertLocations(pets: Locations) :Long
 
     @Delete
-    fun deleteLocations(vararg pets: Locations)
+    fun deleteLocations(vararg pets: Locations) :Int
 
     @Query("SELECT * FROM Locations")
     fun loadAllLocations(): Flowable<MutableList<Locations>>

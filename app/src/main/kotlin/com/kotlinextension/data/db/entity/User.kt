@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.Ignore
 import com.google.gson.annotations.SerializedName
 import com.kotlinextension.data.db.DatabaseAnnotation
 import com.kotlinextension.data.remote.adapter.Flatten
@@ -26,11 +27,10 @@ data class User constructor(@SerializedName("_id") @PrimaryKey(autoGenerate = tr
                             @SerializedName("phone") @ColumnInfo(name = DatabaseAnnotation.PHONE) val phone: String,
                             @SerializedName("cell") @ColumnInfo(name = DatabaseAnnotation.CELL) val cell: String,
                             @Flatten("picture::medium") @ColumnInfo(name = DatabaseAnnotation.PICTURE) val picture: String,
-                            @SerializedName("nat") @ColumnInfo(name = DatabaseAnnotation.NAT) val nat: String)
-/*
+                            @SerializedName("nat") @ColumnInfo(name = DatabaseAnnotation.NAT) val nat: String) {
     @SerializedName("location")
     @Ignore
-    val location: Location,
-*/
+    val location: Locations? = null
+}
 
 

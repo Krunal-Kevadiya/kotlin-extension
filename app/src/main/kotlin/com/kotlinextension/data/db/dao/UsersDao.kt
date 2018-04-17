@@ -12,25 +12,19 @@ interface UsersDao {
     fun getUserById(id: Long): Flowable<User>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUser(user: User)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUser(vararg user: User)
+    fun insertUser(user: User) :Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateUser(user: User)
+    fun updateUser(user: User) :Int
 
     @Query("DELETE FROM Users")
     fun deleteAllUsers()
 
     @Query("DELETE FROM Users WHERE id = :id")
-    fun deleteUser(id: Long)
+    fun deleteUser(id: Long) :Int
 
     @Delete
-    fun deleteUser(user: User)
-
-    @Delete
-    fun deleteUsers(vararg user: User)
+    fun deleteUser(user: User) :Int
 
     @Query("SELECT * FROM Users")
     fun getAllUsers(): Flowable<MutableList<User>>

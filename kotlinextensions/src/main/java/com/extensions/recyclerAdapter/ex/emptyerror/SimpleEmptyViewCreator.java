@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-@SuppressWarnings("unused")
 public class SimpleEmptyViewCreator extends EmptyViewCreator {
     private Context context;
     private CharSequence emptyHint = null;

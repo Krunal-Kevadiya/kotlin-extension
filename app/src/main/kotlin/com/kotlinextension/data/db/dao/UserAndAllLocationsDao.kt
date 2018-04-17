@@ -9,8 +9,8 @@ import io.reactivex.Flowable
 @Dao
 interface UserAndAllLocationsDao {
     @Transaction @Query("SELECT * FROM Users")
-    fun loadUsersAndPets(): Flowable<MutableList<UserAndAllLocation>>
+    fun loadUsersAndLocations(): Flowable<MutableList<UserAndAllLocation>>
 
     @Transaction @Query("SELECT * FROM Users WHERE id = :id")
-    fun loadUserAndPets(id: String): Flowable<UserAndAllLocation>
+    fun loadUserAndLocations(id: String): Flowable<UserAndAllLocation>
 }

@@ -1,12 +1,9 @@
 package com.extensions.recyclerAdapter;
 
 import android.databinding.ViewDataBinding;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import com.extensions.recyclerAdapter.diff.DefaultDiffCallback;
-import com.extensions.recyclerAdapter.diff.RecyclerDiffUtil;
 import com.extensions.recyclerAdapter.ex.emptyerror.RecyclerEmptyLoader;
 import com.extensions.recyclerAdapter.ex.emptyerror.RecyclerExEmptyViewHolder;
 import com.extensions.recyclerAdapter.ex.loadmore.RecyclerExLoadMoreViewHolder;
@@ -34,7 +31,6 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
     private List<Type> dataTypes;
     private Map<Type, Object> creators;
     private Object defaultCreator = null;
-    private RecyclerDiffUtil.Callback diffCallback = null;
 
     private RecyclerAdapter() {
         isEmptyViewVisible = false;
@@ -42,7 +38,6 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         itemList = new ArrayList<>();
         dataTypes = new ArrayList<>();
         creators = new HashMap<>();
-        //setHasStableIds(true);
     }
 
     public static RecyclerAdapter create() {
@@ -95,16 +90,6 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
     @Override
     public int getItemCount() {
         return itemList.size() <= 0 ? (emptyViewLoader != null && isEmptyViewVisible ? 1 : 0) : itemList.size() + (moreLoader == null ? 0 : 1);
-    }
-
-    public RecyclerAdapter enableDiff() {
-        enableDiff(new DefaultDiffCallback());
-        return this;
-    }
-
-    public RecyclerAdapter enableDiff(RecyclerDiffUtil.Callback diffCallback) {
-        this.diffCallback = diffCallback;
-        return this;
     }
 
     @Override
@@ -328,121 +313,72 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
     }
 
     public void clear() {
-        if(diffCallback == null) {
-            itemList.clear();
-            isEmptyViewVisible = false;
-            notifyDataSetChanged();
-        } else {
-            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new RecyclerDiffUtil(itemList, new ArrayList<>(), diffCallback));
-            itemList.clear();
-            isEmptyViewVisible = false;
-            diffResult.dispatchUpdatesTo(this);
-        }
+        itemList.clear();
+        isEmptyViewVisible = false;
+        notifyDataSetChanged();
     }
 
     public void add(Object item, int... position) {
-        if(diffCallback == null) {
-            if(position.length <= 0) {
-                if (isLoadMoreReverse) {
-                    itemList.add(0, item);
-                    isEmptyViewVisible = itemList.size() <= 0;
-                    notifyItemInserted(0);
-                } else {
-                    itemList.add(item);
-                    isEmptyViewVisible = itemList.size() <= 0;
-                    notifyItemInserted(itemList.size() - 1);
-                }
-            } else {
-                itemList.add(position[0], item);
+        if(position.length <= 0) {
+            if (isLoadMoreReverse) {
+                itemList.add(0, item);
                 isEmptyViewVisible = itemList.size() <= 0;
-                notifyItemInserted(position[0]);
+                notifyItemInserted(0);
+            } else {
+                itemList.add(item);
+                isEmptyViewVisible = itemList.size() <= 0;
+                notifyItemInserted(itemList.size() - 1);
             }
         } else {
-            List list = new ArrayList<>();
-            if(position.length <= 0) {
-                if (isLoadMoreReverse) {
-                    list.add(0, item);
-                    list.addAll(itemList);
-                } else {
-                    list.addAll(itemList);
-                    list.add(item);
-                }
-            } else {
-                list.addAll(itemList);
-                list.add(position[0], item);
-            }
-            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new RecyclerDiffUtil(itemList, list, diffCallback));
-            itemList.clear();
-            itemList.addAll(list);
+            itemList.add(position[0], item);
             isEmptyViewVisible = itemList.size() <= 0;
-            diffResult.dispatchUpdatesTo(this);
+            notifyItemInserted(position[0]);
         }
+        reset();
     }
 
     public void addAll(List list, int... position) {
-        if(diffCallback == null) {
-            if(position.length <= 0) {
-                if (isLoadMoreReverse) {
-                    itemList.addAll(0, list);
-                    isEmptyViewVisible = itemList.size() <= 0;
-                    notifyItemRangeInserted(0, list.size());
-                } else {
-                    itemList.addAll(list);
-                    isEmptyViewVisible = itemList.size() <= 0;
-                    notifyItemRangeInserted(itemList.size() - 1, list.size());
-                }
-            } else {
-                itemList.addAll(position[0], list);
+        if(position.length <= 0) {
+            if (isLoadMoreReverse) {
+                itemList.addAll(0, list);
                 isEmptyViewVisible = itemList.size() <= 0;
-                notifyItemRangeInserted(position[0], list.size());
+                notifyItemRangeInserted(0, list.size());
+            } else {
+                itemList.addAll(list);
+                isEmptyViewVisible = itemList.size() <= 0;
+                notifyItemRangeInserted(itemList.size() - 1, list.size());
             }
         } else {
-            List listTemp = new ArrayList<>();
-            if(position.length <= 0) {
-                if (isLoadMoreReverse) {
-                    listTemp.addAll(0, list);
-                    listTemp.addAll(itemList);
-                } else {
-                    listTemp.addAll(itemList);
-                    listTemp.addAll(list);
-                }
-            } else {
-                listTemp.addAll(itemList);
-                listTemp.addAll(position[0], list);
-            }
-            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new RecyclerDiffUtil(itemList, listTemp, diffCallback));
-            itemList.clear();
-            itemList.addAll(list);
+            itemList.addAll(position[0], list);
             isEmptyViewVisible = itemList.size() <= 0;
-            diffResult.dispatchUpdatesTo(this);
+            notifyItemRangeInserted(position[0], list.size());
         }
+        reset();
     }
 
     public void addAllWithClear(List list, int... position) {
         clear();
         addAll(list, position);
+        reset();
     }
 
     public void remove(Object item) {
-        if(diffCallback == null) {
-            int index = itemList.indexOf(item);
-            if (index != -1) {
-                itemList.remove(index);
-                isEmptyViewVisible = itemList.size() <= 0;
-                notifyItemRemoved(index);
-            }
-        } else {
-            List list = new ArrayList<>(itemList);
-
-            int index = list.indexOf(item);
-            if (index != -1) {
-                list.remove(index);
-                DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new RecyclerDiffUtil(itemList, list, diffCallback));
-                itemList.clear();
-                itemList.addAll(list);
-                isEmptyViewVisible = itemList.size() <= 0;
-                diffResult.dispatchUpdatesTo(this);
-            }
+        int index = itemList.indexOf(item);
+        if (index != -1) {
+            itemList.remove(index);
+            isEmptyViewVisible = itemList.size() <= 0;
+            notifyItemRemoved(index);
         }
+    }
+
+    private void reset() {
+        if(moreLoader != null && moreLoader.isLoading()) {
+            moreLoader.reset();
+        }
+    }
+
+    private void error() {
+        if(moreLoader != null)
+            moreLoader.error();
     }
 }

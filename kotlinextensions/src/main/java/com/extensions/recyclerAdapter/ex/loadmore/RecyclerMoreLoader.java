@@ -1,27 +1,21 @@
 package com.extensions.recyclerAdapter.ex.loadmore;
 
 import android.content.Context;
-import android.os.Handler.Callback;
-import android.os.HandlerThread;
-import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
+
 import com.extensions.recyclerAdapter.RecyclerAdapter;
-import java.util.List;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
-    private static final int WHAT_LOAD_MORE = 1;
-
     private RecyclerLoadMoreView loadMoreView;
     private boolean loading;
     private LoadMoreViewCreator loadMoreViewCreator;
     private Context context;
 
     private RecyclerAdapter recyclerAdapter;
-    private android.os.Handler eventHandler;
 
-    private Handler handler;
     private boolean isLoadMoreReverse;
 
     public RecyclerMoreLoader(Context context, boolean isLoadMoreReverse, LoadMoreViewCreator creator) {
@@ -32,7 +26,6 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
         initHandler();
     }
 
-    @SuppressWarnings("unused")
     public RecyclerMoreLoader(Context context, boolean isLoadMoreReverse) {
         this(context, isLoadMoreReverse, new SimpleLoadMoreViewCreator(context));
     }
@@ -42,21 +35,6 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
     }
 
     private void initHandler() {
-        handler = new Handler();
-        HandlerThread eventHandlerThread = new HandlerThread(RecyclerMoreLoader.class.getSimpleName() + ".Thread");
-        eventHandlerThread.start();
-        eventHandler = new android.os.Handler(eventHandlerThread.getLooper(), new Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                switch (msg.what) {
-                    case WHAT_LOAD_MORE:
-                        onLoadMore(handler);
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
     }
 
     public RecyclerLoadMoreView getLoadMoreView() {
@@ -66,7 +44,7 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
         return loadMoreView;
     }
 
-    public abstract void onLoadMore(Handler handler);
+    public abstract void onLoadMore();
 
     public abstract boolean hasMore();
 
@@ -99,11 +77,14 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
         if (hasMore()) {
             loading = true;
             getLoadMoreView().visibleLoadingView(isLoadMoreReverse);
-            eventHandler.removeMessages(WHAT_LOAD_MORE);
-            eventHandler.sendEmptyMessage(WHAT_LOAD_MORE);
+            onLoadMore();
         } else {
             reset();
         }
+    }
+
+    public boolean isLoading() {
+        return loading;
     }
 
     public void reset() {
@@ -114,24 +95,9 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
         getLoadMoreView().invisibleView(isLoadMoreReverse);
     }
 
-    public final class Handler {
-        Handler() {
-        }
-
-        @SuppressWarnings("unchecked")
-        public void loadCompleted(List<Object> data) {
-            if (data == null) {
-                reset();
-                //return;
-            }
-            //if (loading)
-            //    recyclerAdapter.addAll(data);
-        }
-
-        public void error() {
-            loading = false;
-            getLoadMoreView().invisibleView(isLoadMoreReverse);
-            getLoadMoreView().visibleErrorView(isLoadMoreReverse);
-        }
+    public void error() {
+        loading = false;
+        getLoadMoreView().invisibleView(isLoadMoreReverse);
+        getLoadMoreView().visibleErrorView(isLoadMoreReverse);
     }
 }

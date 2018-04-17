@@ -1,16 +1,10 @@
 package com.kotlinextension.data.db
 
-import android.support.annotation.StringDef
-
 class DatabaseAnnotation {
 
     companion object {
         const val DATABASE_VERSION = 1
-        const val DATABASE_NAME = "AppDatabase.db"
-
-        @StringDef(ID, USER_NAME, GENDER, EMAIL, PASSWORD, DOB, REGISTERED, PHONE, CELL, PICTURE, NAT)
-        @Retention(AnnotationRetention.SOURCE)
-        annotation class UserTable
+        const val DATABASE_NAME = "AppDatabase"
 
         const val TABLE_USER = "users"
         const val ID = "id"

@@ -8,8 +8,7 @@ import android.view.ViewGroup
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class GenericRecyclerAdapter private constructor() :RecyclerView.Adapter<RecyclerView
-.ViewHolder>() {
+class GenericRecyclerAdapter private constructor() :RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val itemList :MutableList<Any>
     private val dataTypes :MutableList<Type>
     private val creators :MutableMap<Type, Any>
@@ -76,7 +75,7 @@ class GenericRecyclerAdapter private constructor() :RecyclerView.Adapter<Recycle
     }
 
     override fun onBindViewHolder(holder :RecyclerView.ViewHolder, position :Int) {
-        (holder as RecyclerTypeBindingViewHolder<*, *>).bind(position, getItem(position))
+        //(holder as RecyclerTypeBindingViewHolder)//.bind(position, getItem(position))
     }
 
     private fun isTypeMatch(type :Type, targetType :Type) :Boolean {
