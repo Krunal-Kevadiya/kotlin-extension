@@ -107,6 +107,10 @@ android {
     }
   }
 
+  lintOptions {
+    abortOnError false
+  }
+
   buildTypes {
     buildTypes.each {
       it.buildConfigField "String", 'BASEURL_API', "\"https://randomuser.me/\""
@@ -116,7 +120,7 @@ android {
       proguard_list.each { pro_guard ->
         proguardFile pro_guard
       }
-      signingConfig signingConfigs.release
+      //signingConfig signingConfigs.release
     }
 
     debug {
@@ -124,7 +128,7 @@ android {
       proguard_list.each { pro_guard ->
         proguardFile pro_guard
       }
-      signingConfig signingConfigs.debug
+      //signingConfig signingConfigs.debug
     }
   }
 
@@ -230,7 +234,6 @@ dependencies {
   // dependency injection
   implementation deps.dagger.lib
   kapt deps.dagger.compiler
-  implementation deps.dagger.android
   kapt deps.dagger.android_support_compiler
   implementation deps.dagger.android_support
 

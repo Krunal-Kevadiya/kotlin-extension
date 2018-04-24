@@ -7,7 +7,7 @@ ext.versions = [
   dagger   : "2.14.1",
   espresso : "3.0.1",
   atsl     : "1.0.1",
-  kotlin   : "1.2.31",
+  kotlin   : "1.2.40",
   google   : "11.8.0",
   firebase : "11.6.0",
   ok_http  : "3.9.0",
@@ -129,8 +129,8 @@ deps.other = [
   facebook        : "com.facebook.android:facebook-android-sdk:4.28.0",
   live_adapter_rx2: 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0',
 
-  plugin          : "com.android.tools.build:gradle:3.0.1",
-  binding         : "com.android.databinding:compiler:3.0.1",
+  plugin          : "com.android.tools.build:gradle:3.1.1",
+  binding         : "com.android.databinding:compiler:3.1.1",
 
   gson            : "com.google.code.gson:gson:2.8.2",
   sdp             : "com.intuit.sdp:sdp-android:$versions.intuit",
