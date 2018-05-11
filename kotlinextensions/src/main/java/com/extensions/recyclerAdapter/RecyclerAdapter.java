@@ -1,6 +1,8 @@
 package com.extensions.recyclerAdapter;
 
 import android.databinding.ViewDataBinding;
+import android.os.Looper;
+import android.support.annotation.MainThread;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import android.os.Handler;
 
 public class RecyclerAdapter extends AbstractRecyclerAdapter {
     public final static int TYPE_LOAD_MORE = -10;
@@ -263,14 +266,18 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        if (moreLoader != null)
+        if (moreLoader != null) {
+            moreLoader.setRecyclerView(recyclerView);
             recyclerView.addOnScrollListener(moreLoader);
+        }
     }
 
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        if (moreLoader != null)
+        if (moreLoader != null) {
+            moreLoader.setRecyclerView(null);
             recyclerView.removeOnScrollListener(moreLoader);
+        }
         super.onDetachedFromRecyclerView(recyclerView);
     }
 
@@ -312,7 +319,7 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
         return itemList;
     }
 
-    public void clear() {
+    private void clear() {
         itemList.clear();
         isEmptyViewVisible = false;
         notifyDataSetChanged();
@@ -359,7 +366,6 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
     public void addAllWithClear(List list, int... position) {
         clear();
         addAll(list, position);
-        reset();
     }
 
     public void remove(Object item) {
@@ -369,11 +375,20 @@ public class RecyclerAdapter extends AbstractRecyclerAdapter {
             isEmptyViewVisible = itemList.size() <= 0;
             notifyItemRemoved(index);
         }
+        reset();
     }
 
     private void reset() {
-        if(moreLoader != null && moreLoader.isLoading()) {
-            moreLoader.reset();
+        if(moreLoader != null) {
+            if(moreLoader.isLoading()) {
+                moreLoader.reset();
+            }
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    moreLoader.checkLoadMore();
+                }
+            }, 1000);
         }
     }
 

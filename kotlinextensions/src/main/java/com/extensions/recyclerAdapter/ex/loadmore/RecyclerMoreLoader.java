@@ -14,6 +14,7 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
     private LoadMoreViewCreator loadMoreViewCreator;
     private Context context;
 
+    private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
 
     private boolean isLoadMoreReverse;
@@ -69,7 +70,25 @@ public abstract class RecyclerMoreLoader extends RecyclerView.OnScrollListener {
                 }
                 break;
             default:
-                break;
+        }
+    }
+
+    public void setRecyclerView(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+    }
+
+    public void checkLoadMore() {
+        if(recyclerView != null) {
+            if (isLoadMoreReverse) {
+                int first = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                if (NO_POSITION != first && recyclerAdapter.getItem(first) == this && !loading)
+                    loadMore();
+            } else {
+                int last = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
+                if (NO_POSITION != last && recyclerAdapter.getItem(last) == this && !loading) {
+                    loadMore();
+                }
+            }
         }
     }
 

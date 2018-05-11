@@ -1,8 +1,11 @@
 package com.kotlinextension.ui.main
 
+import android.app.Activity
 import android.arch.lifecycle.ViewModelProviders
+import android.os.Handler
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
+import com.extensions.dialogs.customsnackbar.CustomSnackbar
 import com.extensions.recyclerAdapter.RecyclerAdapter
 import com.extensions.recyclerAdapter.ex.loadmore.RecyclerMoreLoader
 import com.kotlinextension.BR
@@ -65,6 +68,17 @@ class MainActivity :BaseActivity<ActivityMainBinding, MainViewModel>(), MainNavi
 
     override fun openMapActivity() {
         startActivity(MapsActivity.getActivity(this))
+    }
+
+    private fun overlay():CustomSnackbar {
+        return CustomSnackbar.Builder(this as Activity)
+            .gravity(CustomSnackbar.Gravity.TOP)
+            .title("Hello World!")
+            .duration(5000)
+            .message("You can show a modal overlay to give a dim effect in the entire screen.")
+            .backgroundColorRes(R.color.colorPrimaryDark)
+            .showOverlay()
+            .build()
     }
 }
 

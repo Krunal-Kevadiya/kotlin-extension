@@ -80,6 +80,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Support libraries
+    //implementation deps.support.app_compat
     implementation deps.support.design
     implementation deps.support.v4
     implementation deps.support.card_view
@@ -108,7 +109,7 @@ dependencies {
 ext {
     PUBLISH_GROUP_ID = 'com.simform'
     PUBLISH_ARTIFACT_ID = 'kotlinextensions'
-    PUBLISH_VERSION = '1.0.0'
+    PUBLISH_VERSION = '1.0.2'
 }
 
 apply from: '../gradle/android-release-aar.gradle'

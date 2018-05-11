@@ -1,6 +1,9 @@
 package com.kotlinextension.ui.main
 
 import android.util.Log
+import com.extensions.reactive.runSafeOnIO
+import com.extensions.reactive.runSafeOnMain
+import com.extensions.reactive.smartSubscribe
 import com.extensions.recyclerAdapter.RecyclerAdapter
 import com.kotlinextension.base.BaseViewModel
 import com.kotlinextension.data.db.AppDatabase
@@ -9,7 +12,6 @@ import com.kotlinextension.data.remote.ApiService
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(private val appDatabase :AppDatabase,
@@ -19,8 +21,7 @@ class MainViewModel @Inject constructor(private val appDatabase :AppDatabase,
 
     fun getAllDbUsers(adapter :RecyclerAdapter) {
         disposable.add(appDatabase.usersDao().getAllUsers()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .runSafeOnMain()
             .subscribe({ items ->
                 adapter.addAllWithClear(items)
             }, { throwable ->
@@ -35,8 +36,7 @@ class MainViewModel @Inject constructor(private val appDatabase :AppDatabase,
                 user.location!!.userId = userId
                 appDatabase.locationssDao().insertLocations(user.location)
             }
-        }.subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        }.runSafeOnMain()
             .subscribe({
                 Log.e("Api", "success insert")
             }, { throwable ->
@@ -47,10 +47,9 @@ class MainViewModel @Inject constructor(private val appDatabase :AppDatabase,
     fun deleteDbUser(position: Int, user :User, adapter :RecyclerAdapter) {
         disposable.add(Completable.fromAction {
             appDatabase.usersDao().deleteUser(user)
-        }.subscribeOn(Schedulers.io())
-             .observeOn(AndroidSchedulers.mainThread())
+        }.runSafeOnMain()
              .subscribe({
-                 adapter.notifyItemRemoved(position)
+                 //adapter.notifyItemRemoved(position)
              }, { throwable ->
                  Log.e("Api", "error " + throwable.localizedMessage)
              }))
@@ -58,14 +57,18 @@ class MainViewModel @Inject constructor(private val appDatabase :AppDatabase,
 
     fun getAllApiUsers() {
         disposable.add(apiService.getUsers(10)
-            .subscribeOn(Schedulers.io())
-            .subscribe({ response ->
-                response?.let {
-                    insertAllDbUsers(it.result)
-                }
-            }, { throwable ->
-                Log.e("Api", "error " + throwable.localizedMessage)
-            }))
+            .runSafeOnIO()
+            .smartSubscribe(
+                onStart = { Log.e("Api", "OnStart") },
+                onSuccess = {
+                    Log.e("Api", "OnSuccess")
+                    it?.let {
+                        insertAllDbUsers(it.result)
+                    }
+                },
+                onError = { Log.e("Api", "OnError " + it.localizedMessage) },
+                onFinish = { Log.e("Api", "OnFinish") }
+            ))
     }
 
     override fun onCleared() {

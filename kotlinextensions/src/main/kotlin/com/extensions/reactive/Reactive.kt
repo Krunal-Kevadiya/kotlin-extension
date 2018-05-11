@@ -5,8 +5,9 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.android.schedulers.AndroidSchedulers
 
 /**
  * Created by gilgoldzweig on 30/08/2017.
@@ -36,6 +37,20 @@ fun <T> Observable<T>.runSafeOnIO() :Observable<T> =
         .doOnError({unsubscribeOn(newThread)})
         .doOnComplete {unsubscribeOn(newThread)}
 
+fun <T> Observable<T>.smartSubscribe(
+    onStart: (() -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
+    onFinish: (() -> Unit)? = null,
+    onSuccess: (T) -> Unit = {}): Disposable =
+    addStartFinishActions(onStart, onFinish)
+        .subscribe(onSuccess, { onError?.invoke(it) })
+
+fun <T> Observable<T>.addStartFinishActions(onStart: (() -> Unit)? = null, onFinish: (() -> Unit)? = null)
+    : Observable<T> {
+    onStart?.invoke()
+    return doOnTerminate({ onFinish?.invoke() })
+}
+
 fun <T> Flowable<T>.runSafeOnMain() :Flowable<T> =
     observeOn(mainThread)
         .subscribeOn(newThread)
@@ -47,6 +62,20 @@ fun <T> Flowable<T>.runSafeOnIO() :Flowable<T> =
         .subscribeOn(newThread)
         .doOnError({unsubscribeOn(newThread)})
         .doOnComplete {unsubscribeOn(newThread)}
+
+fun <T> Flowable<T>.smartSubscribe(
+    onStart: (() -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
+    onFinish: (() -> Unit)? = null,
+    onSuccess: (T) -> Unit = {}): Disposable =
+    addStartFinishActions(onStart, onFinish)
+        .subscribe(onSuccess, { onError?.invoke(it) })
+
+fun <T> Flowable<T>.addStartFinishActions(onStart: (() -> Unit)? = null, onFinish: (() -> Unit)? = null)
+    : Flowable<T> {
+    onStart?.invoke()
+    return doOnTerminate({ onFinish?.invoke() })
+}
 
 fun <T> Single<T>.runSafeOnMain() :Single<T> =
     observeOn(mainThread)
@@ -60,6 +89,20 @@ fun <T> Single<T>.runSafeOnIO() :Single<T> =
         .doOnError({unsubscribeOn(newThread)})
         .doOnSuccess {unsubscribeOn(newThread)}
 
+fun <T> Single<T>.smartSubscribe(
+    onStart: (() -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
+    onFinish: (() -> Unit)? = null,
+    onSuccess: (T) -> Unit = {}): Disposable =
+    addStartFinishActions(onStart, onFinish)
+        .subscribe(onSuccess, { onError?.invoke(it) })
+
+fun <T> Single<T>.addStartFinishActions(onStart: (() -> Unit)? = null, onFinish: (() -> Unit)? = null)
+    : Single<T> {
+    onStart?.invoke()
+    return doOnDispose({ onFinish?.invoke() })
+}
+
 fun Completable.runSafeOnMain() :Completable =
     observeOn(mainThread)
         .subscribeOn(newThread)
@@ -71,6 +114,20 @@ fun Completable.runSafeOnIO() :Completable =
         .subscribeOn(newThread)
         .doOnError({unsubscribeOn(newThread)})
         .doOnComplete({unsubscribeOn(newThread)})
+
+fun Completable.smartSubscribe(
+    onStart: (() -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
+    onFinish: (() -> Unit)? = null,
+    onSuccess: () -> Unit = {}): Disposable =
+    addStartFinishActions(onStart, onFinish)
+        .subscribe(onSuccess, { onError?.invoke(it) })
+
+fun Completable.addStartFinishActions(onStart: (() -> Unit)? = null, onFinish: (() -> Unit)? = null)
+    : Completable {
+    onStart?.invoke()
+    return doOnDispose({ onFinish?.invoke() })
+}
 
 fun <T> Maybe<T>.runSafeOnMain() :Maybe<T> =
     observeOn(mainThread)
@@ -84,3 +141,16 @@ fun <T> Maybe<T>.runSafeOnIO() :Maybe<T> =
         .doOnError({unsubscribeOn(newThread)})
         .doOnSuccess {unsubscribeOn(newThread)}
 
+fun <T> Maybe<T>.smartSubscribe(
+    onStart: (() -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
+    onFinish: (() -> Unit)? = null,
+    onSuccess: (T) -> Unit = {}): Disposable =
+    addStartFinishActions(onStart, onFinish)
+        .subscribe(onSuccess, { onError?.invoke(it) })
+
+fun <T> Maybe<T>.addStartFinishActions(onStart: (() -> Unit)? = null, onFinish: (() -> Unit)? = null)
+    : Maybe<T> {
+    onStart?.invoke()
+    return doOnDispose({ onFinish?.invoke() })
+}
