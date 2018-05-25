@@ -4,12 +4,12 @@ import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import com.bumptech.glide.Priority
 import com.bumptech.glide.request.RequestOptions
-import com.extensions.validation.isNull
+import com.extensions.general.isNull
 import com.kotlinextension.R
 import com.kotlinextension.widget.AspectRatioFrameLayout
 
 fun AspectRatioFrameLayout.loadPhoto(url: String?) =
-    if (isNull(url)) {
+    if (url.isNull()) {
         setProgressVisible(false)
         getImageView().setImageResource(R.drawable.ic_launcher_background)
     } else {

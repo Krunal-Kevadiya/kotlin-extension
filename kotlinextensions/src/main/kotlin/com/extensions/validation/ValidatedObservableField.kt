@@ -31,7 +31,7 @@ class ValidatedObservableField<T> : BaseObservable {
         this.rule = rule
     }
 
-    private fun getValue(): T? = value
+    fun getValue(): T? = value
 
     fun getErrorMessage(): String? = errorMessage
 
@@ -42,7 +42,7 @@ class ValidatedObservableField<T> : BaseObservable {
         }
     }
 
-    private fun validate(): Boolean {
+    fun validate(): Boolean {
         if (rule != null) {
             isValid = rule!!.isValid(getValue())
             errorMessage = if (isValid) null else rule!!.errorMessage

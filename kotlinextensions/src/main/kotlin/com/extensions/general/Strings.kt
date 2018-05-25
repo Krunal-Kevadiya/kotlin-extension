@@ -7,33 +7,13 @@ import android.webkit.URLUtil
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Random
+import java.util.regex.Pattern
 
-fun String.isValidEmail() :Boolean {
-    return !matches(Regex("^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\\.([a-zA-Z])+([a-zA-Z])+"))
-    //return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+fun String?.isUrl() :Boolean {
+    return this.isNotNull() && URLUtil.isValidUrl(this)
 }
 
-fun String.isUrl() :Boolean {
-    return URLUtil.isValidUrl(this)
-}
-
-fun String.isNumeric() :Boolean {
-    try {
-        val d = java.lang.Double.parseDouble(this)
-    } catch(nfe :NumberFormatException) {
-        return false
-    }
-
-    return true
-}
-
-fun String.isPhoneNumber() :Boolean {
-    return android.util.Patterns.PHONE.matcher(this).matches()
-}
-
-fun String.random(length :Int = 8) :String {
-    val random = Random()
+fun random(length :Int = 8) :String {
     val base = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+"
     var randomString :String = ""
 
@@ -49,11 +29,11 @@ fun String.toBitmap() :Bitmap {
     return BitmapFactory.decodeByteArray(decoded, 0, decoded.count())
 }
 
-fun String.ellipsize(at :Int) :String {
-    if(this.length > at) {
-        return this.substring(0, at) + "..."
-    }
-    return this
+fun String?.ellipsize(at :Int) :String {
+    return if(this.isNotNull() && this!!.length > at)
+        "${this.substring(0, at)}..."
+    else
+        this!!
 }
 
 fun String.toDate(withFormat :String = "yyyy/MM/dd hh:mm") :Date {
@@ -69,62 +49,138 @@ fun String.toDate(withFormat :String = "yyyy/MM/dd hh:mm") :Date {
     return convertedDate
 }
 
+@Suppress("DEPRECATION")
 fun String.plainText() :String {
     return android.text.Html.fromHtml(this).toString()
 }
 
-fun String?.isNull() :Boolean {
-    return this == null || this.equals("null", ignoreCase = true) || this.trim {it <= ' '}.isEmpty()
+fun String?.isNull(): Boolean {
+    return this == null || this.equals("null", ignoreCase = true) || this.trim { it <= ' ' }.isEmpty()
 }
 
-fun String?.isNotNull() :Boolean {
-    return !isNull()
+fun String?.isNotNull(): Boolean {
+    return !this.isNull()
 }
 
-fun String?.isEqual(str2 :String?) :Boolean {
-    return isNotNull() && str2.isNotNull() && equals(str2, ignoreCase = true)
+fun String?.isEqual(str1: String?): Boolean {
+    return this.isNotNull() && str1.isNotNull() && this.equals(str1, ignoreCase = true)
 }
 
-fun String?.isNotEqual(str2 :String?) :Boolean {
-    return isNotNull() && str2.isNotNull() && !equals(str2, ignoreCase = true)
+fun String?.isNotEqual(str1: String?): Boolean {
+    return this.isNotNull() && str1.isNotNull() && !this.equals(str1, ignoreCase = true)
 }
 
-fun String.noNumbers() :Boolean {
-    return matches(Regex(".*\\d.*"))
+fun String?.email(): Boolean {
+    return this.isNotNull()
+        && !this!!.matches(Regex("^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\\.([a-zA-Z])+([a-zA-Z])"))
 }
 
-fun String.onlyNumbers() :Boolean {
-    return !matches(Regex("\\d+"))
+fun String?.phoneNumber(): Boolean {
+    return this.isNotNull() && !android.util.Patterns.PHONE.matcher(this).matches()
 }
 
-fun String.allUpperCase() :Boolean {
-    return toUpperCase() != this
+fun String?.noNumbers(): Boolean {
+    return this.isNotNull() && this!!.matches(Regex(".*\\d.*"))
 }
 
-fun String.allLowerCase() :Boolean {
-    return toLowerCase() != this
+fun String?.nonEmpty(): Boolean {
+    return this.isNotNull() && this!!.isEmpty()
 }
 
-fun String.atLeastOneLowerCase() :Boolean {
-    return matches(Regex("[A-Z0-9]+"))
+fun String?.onlyNumbers(): Boolean {
+    return this.isNotNull() && !this!!.matches(Regex("\\d+"))
 }
 
-fun String.atLeastOneUpperCase() :Boolean {
-    return matches(Regex("[a-z0-9]+"))
+fun String?.allUpperCase(): Boolean {
+    return this.isNotNull() && this!!.toUpperCase() != this
 }
 
-fun String.atLeastOneNumber() :Boolean {
-    return !matches(Regex(".*\\d.*"))
+fun String?.allLowerCase(): Boolean {
+    return this.isNotNull() && this!!.toLowerCase() != this
 }
 
-fun String.startsWithNonNumber() :Boolean {
-    return Character.isDigit(this[0])
+fun String?.atLeastOneLowerCase(): Boolean {
+    return this.isNotNull() && this!!.matches(Regex("[A-Z0-9]+"))
 }
 
-fun String.noSpecialCharacter() :Boolean {
-    return !matches(Regex("[A-Za-z0-9]+"))
+fun String?.atLeastOneUpperCase(): Boolean {
+    return this.isNotNull() && this!!.matches(Regex("[a-z0-9]+"))
 }
 
-fun String.atLeastOneSpecialCharacter() :Boolean {
-    return matches(Regex("[A-Za-z0-9]+"))
+fun String?.atLeastOneNumber(): Boolean {
+    return this.isNotNull() && !this!!.matches(Regex(".*\\d.*"))
+}
+
+fun String?.startsWithNonNumber(): Boolean {
+    return this.isNotNull() && Character.isDigit(this!![0])
+}
+
+fun String?.noSpecialCharacter(): Boolean {
+    return this.isNotNull() && !this!!.matches(Regex("[A-Za-z0-9]+"))
+}
+
+fun String?.atLeastOneSpecialCharacter(): Boolean {
+    return this.isNotNull() && this!!.matches(Regex("[A-Za-z0-9]+"))
+}
+
+fun String?.contain(string: String?): Boolean {
+    return this.isNotNull() && string.isNotNull() && !this!!.contains(string!!)
+}
+
+fun String?.doesNotContains(string: String?): Boolean {
+    return this.isNotNull() && string.isNotNull() && this!!.contains(string!!)
+}
+
+fun String?.startWith(string: String?): Boolean {
+    return this.isNotNull() && string.isNotNull() && !this!!.startsWith(string!!)
+}
+
+fun String?.endWith(string: String?): Boolean {
+    return this.isNotNull() && string.isNotNull() && !this!!.endsWith(string!!)
+}
+
+fun String?.isFloat():Boolean {
+    val p = Pattern.compile(
+        "[\\x00-\\x20]*[+-]?(NaN|Infinity|((((\\p{Digit}+)(\\.)?((\\p{Digit}+)?)" +
+            "([eE][+-]?(\\p{Digit}+))?)|(\\.((\\p{Digit}+))([eE][+-]?(\\p{Digit}+))?)|" +
+            "(((0[xX](\\p{XDigit}+)(\\.)?)|(0[xX](\\p{XDigit}+)?(\\.)(\\p{XDigit}+)))" +
+            "[pP][+-]?(\\p{Digit}+)))[fFdD]?))[\\x00-\\x20]*")
+    return this.isNotNull() && !p.matcher(this).matches()
+}
+
+fun String?.isServerURL():Boolean {
+    return this.isNotNull() && (this!!.startsWith("http://") || this.startsWith("https://"))
+}
+
+fun String?.isNotNullThenImageURL(str :String) :Boolean {
+    return this.isNotNull() && this.isServerURL() && checkImageURL(str.substring(str.lastIndexOf("/")))
+}
+
+fun checkImageURL(inputMail :String?) :Boolean {
+    val p = Pattern.compile("([^\\s]+(\\.(?i)(jpg|png|gif|bmp|jpeg))$)")
+    return inputMail.isNotNull() && p.matcher(inputMail).matches()
+}
+
+fun String?.isEqualLength(length :Int) : Boolean {
+    return this.isNotNull() && this!!.length == length
+}
+
+fun String?.isNotEqualLength(length :Int) : Boolean {
+    return this.isNotNull() && this!!.length != length
+}
+
+fun String?.greaterThanLength(length :Int) : Boolean {
+    return this.isNotNull() && this!!.length > length
+}
+
+fun String?.greaterThanEqualLength(length :Int) : Boolean {
+    return this.isNotNull() && this!!.length >= length
+}
+
+fun String?.lessThanLength(length :Int) : Boolean {
+    return this.isNotNull() && this!!.length < length
+}
+
+fun String?.lessThanEqualLength(length :Int) : Boolean {
+    return this.isNotNull() && this!!.length <= length
 }
