@@ -9,4 +9,8 @@
     <color name="modal">#80272727</color>
     <color name="slate_black">#FF333333</color>
     <color name="yellow">#FFEB3B</color>
+
+    <color name="light_transparent">#16000000</color>
+    <color name="dark_transparent">#24000000</color>
+
 </resources>

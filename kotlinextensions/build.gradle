@@ -91,6 +91,8 @@ dependencies {
     // Data Binding
     kapt deps.other.binding
 
+    implementation deps.other.shimmerlayout
+
     // Architecture components
     implementation deps.lifecycle.lib
     implementation deps.lifecycle.extensions
@@ -109,7 +111,7 @@ dependencies {
 ext {
     PUBLISH_GROUP_ID = 'com.simform'
     PUBLISH_ARTIFACT_ID = 'kotlinextensions'
-    PUBLISH_VERSION = '1.0.8'
+    PUBLISH_VERSION = '1.0.9'
 }
 
 apply from: '../gradle/android-release-aar.gradle'
